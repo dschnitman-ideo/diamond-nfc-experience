@@ -8,7 +8,7 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const diamond = getDiamond(id);
   return {
-    title: diamond ? `${diamond.name} — Diamond ${diamond.id}` : "Diamond not found",
+    title: diamond ? `${diamond.name}: Diamond ${diamond.id}` : "Diamond not found",
   };
 }
 

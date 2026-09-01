@@ -50,7 +50,7 @@ export default function GiaPanel({ record }) {
       </a>
 
       <p className="mt-4 text-[12px] italic text-[var(--ink-faint)]">
-        Prototype placeholder document — replace with the stone&rsquo;s real GIA report URL.
+        Prototype placeholder document. Replace with the stone&rsquo;s real GIA report URL.
       </p>
     </div>
   );

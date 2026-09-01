@@ -16,7 +16,7 @@ const ui = Inter({
 export const metadata = {
   title: "Diamond Experience",
   description:
-    "NFC-triggered natural diamond product experience — prototype.",
+    "NFC-triggered natural diamond product experience: prototype.",
 };
 
 export default function RootLayout({ children }) {

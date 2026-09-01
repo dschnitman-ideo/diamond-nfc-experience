@@ -69,7 +69,7 @@ export default function TracrPanel({ record }) {
       </ol>
 
       <p className="mt-6 text-[12px] italic text-[var(--ink-faint)]">
-        Prototype data — representative Tracr information for demonstration only.
+        Prototype data: representative Tracr information for demonstration only.
       </p>
     </div>
   );
