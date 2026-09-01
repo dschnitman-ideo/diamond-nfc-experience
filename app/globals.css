@@ -1,26 +1,106 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ---- palette: near-black stage, warm ivory ink, brass accent ---- */
+  --surface: #0b0b0c;
+  --surface-raised: #131315;
+  --surface-card: #17181a;
+  --ink: #f3efe7;
+  --ink-soft: #a9a49b;
+  --ink-faint: #706c65;
+  --hairline: rgba(255, 255, 255, 0.09);
+  --hairline-strong: rgba(255, 255, 255, 0.16);
+  --brass: #c9a35d;
+  --brass-soft: rgba(201, 163, 93, 0.14);
+  --brass-ink: #171310;
+  --status-good: #8caa7e;
+  --status-good-soft: rgba(140, 170, 126, 0.14);
+  --status-pending: #c9a35d;
+  --status-pending-soft: rgba(201, 163, 93, 0.14);
+
+  --font-family-display: var(--font-display), "Iowan Old Style", Georgia, serif;
+  --font-family-ui: var(--font-ui), "Inter", -apple-system, sans-serif;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-card: var(--surface-card);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-hairline: var(--hairline);
+  --color-brass: var(--brass);
+  --color-brass-soft: var(--brass-soft);
+  --font-display: var(--font-family-display);
+  --font-ui: var(--font-family-ui);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-family-ui);
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-family-display);
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+/* accessible focus ring, never color-only */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+::selection {
+  background: var(--brass-soft);
+  color: var(--ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* hide scrollbar on the horizontally-swiped gallery / tab strips while
+   keeping them scrollable */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
