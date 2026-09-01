@@ -45,7 +45,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   const tint = getColorTint(diamond.color);
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 pb-28 pt-5 sm:max-w-lg sm:px-6">
+    <div className="mx-auto w-full max-w-md px-4 pb-28 pt-5 sm:max-w-lg sm:px-6 lg:max-w-5xl lg:px-8 lg:pt-8">
       <AnimatePresence>
         {!recognized ? <RecognitionOverlay diamondName={diamond.name} /> : null}
       </AnimatePresence>
@@ -68,52 +68,56 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
           <ShareButton title={diamond.name} />
         </header>
 
-        <h1 className="mt-5 font-[family-name:var(--font-display)] text-[32px] leading-[1.05] text-[var(--ink)]">
+        <h1 className="mt-5 font-[family-name:var(--font-display)] text-[32px] leading-[1.05] text-[var(--ink)] lg:text-[38px]">
           {diamond.name}
         </h1>
         <p className="mt-1.5 text-sm text-[var(--ink-soft)]">
           {diamond.shape} · {diamond.carat.toFixed(2)} ct
         </p>
 
-        <div className="mt-6">
-          <DiamondStage shape={diamond.shape} tint={tint} />
-        </div>
+        {/* Landscape two-column layout from lg up: stone on the left,
+            information on the right, rather than one long vertical stack. */}
+        <div className="mt-6 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-12">
+          <div className="lg:sticky lg:top-8">
+            <DiamondStage shape={diamond.shape} tint={tint} />
+          </div>
 
-        <div className="mt-6">
-          <SegmentedTabs active={activeTab} onChange={setActiveTab} />
-        </div>
+          <div className="mt-6 lg:mt-0">
+            <SegmentedTabs active={activeTab} onChange={setActiveTab} />
 
-        <div className="mt-6">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTab}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-            >
-              {activeTab === "diamond" ? <DiamondPanel diamond={diamond} /> : null}
-              {activeTab === "tracr" ? <TracrPanel record={tracrRecord} /> : null}
-              {activeTab === "gia" ? <GiaPanel record={giaRecord} /> : null}
-            </motion.div>
-          </AnimatePresence>
-        </div>
+            <div className="mt-6">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeTab}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  {activeTab === "diamond" ? <DiamondPanel diamond={diamond} /> : null}
+                  {activeTab === "tracr" ? <TracrPanel record={tracrRecord} /> : null}
+                  {activeTab === "gia" ? <GiaPanel record={giaRecord} /> : null}
+                </motion.div>
+              </AnimatePresence>
+            </div>
 
-        <div className="mt-8 flex items-center justify-between border-t border-[var(--hairline)] pt-5">
-          <button
-            onClick={() => router.push(`/diamond/${prev.id}`)}
-            className="flex items-center gap-1.5 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
-          >
-            <Icon name="chevronLeft" className="h-4 w-4" />
-            {prev.name}
-          </button>
-          <button
-            onClick={() => router.push(`/diamond/${next.id}`)}
-            className="flex items-center gap-1.5 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
-          >
-            {next.name}
-            <Icon name="chevronRight" className="h-4 w-4" />
-          </button>
+            <div className="mt-8 flex items-center justify-between border-t border-[var(--hairline)] pt-5">
+              <button
+                onClick={() => router.push(`/diamond/${prev.id}`)}
+                className="flex items-center gap-1.5 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
+              >
+                <Icon name="chevronLeft" className="h-4 w-4" />
+                {prev.name}
+              </button>
+              <button
+                onClick={() => router.push(`/diamond/${next.id}`)}
+                className="flex items-center gap-1.5 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
+              >
+                {next.name}
+                <Icon name="chevronRight" className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
         </div>
       </motion.div>
 
