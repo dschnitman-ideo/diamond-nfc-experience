@@ -146,7 +146,7 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, onFocus }
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ delay: 0.35, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="pointer-events-none absolute inset-x-0 bottom-32 flex justify-center px-6"
+            className="pointer-events-none absolute inset-x-0 bottom-32 z-20 flex justify-center px-6"
           >
             <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-[var(--hairline-strong)] bg-[var(--surface-card)]/95 px-4 py-3.5 shadow-xl shadow-black/40 backdrop-blur">
               <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[var(--brass-soft)] text-[var(--brass)]">
