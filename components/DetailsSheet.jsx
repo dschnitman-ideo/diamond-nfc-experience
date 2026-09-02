@@ -5,6 +5,7 @@ import SegmentedTabs from "./SegmentedTabs";
 import DiamondPanel from "./DiamondPanel";
 import TracrPanel from "./TracrPanel";
 import GiaPanel from "./GiaPanel";
+import SaveShareButton from "./SaveShareButton";
 import { Icon } from "./icons";
 
 /**
@@ -101,7 +102,9 @@ export default function DetailsSheet({
                   </motion.div>
                 </AnimatePresence>
 
-                <div className="mt-8 flex items-center justify-between border-t border-[var(--hairline)] pt-5">
+                <SaveShareButton diamond={diamond} giaRecord={giaRecord} tracrRecord={tracrRecord} />
+
+                <div className="mt-6 flex items-center justify-between">
                   <button
                     onClick={() => onNavigate(prev.id)}
                     className="flex items-center gap-1.5 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
