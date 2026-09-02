@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Icon } from "./icons";
+import DiamondMark from "./DiamondMark";
 
 export default function RecognitionOverlay({ diamondName }) {
   return (
@@ -10,28 +10,28 @@ export default function RecognitionOverlay({ diamondName }) {
       initial={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-5 bg-[var(--surface)]"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-[var(--surface)]"
     >
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.45, ease: "easeOut" }}
-        className="relative flex h-16 w-16 items-center justify-center rounded-full border border-[var(--hairline-strong)]"
+        className="relative flex items-center justify-center"
       >
         <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-[-1px] rounded-full"
+          animate={{ opacity: [0.4, 0.85, 0.4] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute h-24 w-24 rounded-full blur-2xl"
           style={{
-            background:
-              "conic-gradient(from 0deg, transparent 0%, var(--brass) 12%, transparent 24%)",
-            maskImage:
-              "radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px))",
-            WebkitMaskImage:
-              "radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1px))",
+            background: "radial-gradient(circle, var(--brass-soft) 0%, transparent 70%)",
           }}
         />
-        <Icon name="sparkle" className="h-6 w-6 text-[var(--brass)]" />
+        <motion.div
+          animate={{ opacity: [1, 0.7, 1] }}
+          transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+        >
+          <DiamondMark className="relative h-14 text-[var(--ink)]" />
+        </motion.div>
       </motion.div>
       <motion.div
         initial={{ opacity: 0, y: 6 }}
