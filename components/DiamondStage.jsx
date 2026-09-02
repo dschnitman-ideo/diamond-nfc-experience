@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import DiamondArt, { INSCRIPTION_ANCHOR } from "./DiamondArt";
+import IdleShimmer from "./IdleShimmer";
 import { Icon } from "./icons";
 import { playZoomChime, vibrate } from "@/lib/feedback";
 
@@ -13,6 +14,7 @@ const ANCHOR_PCT = {
 
 const ZOOM_SCALE = 3.6;
 const AUTO_ZOOM_DELAY_MS = 1100;
+const IDLE_DELAY_MS = 3500;
 
 /**
  * The full-screen stone itself. Owns rotation, and the zoom-into-the-
@@ -26,14 +28,32 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
   const [dragTilt, setDragTilt] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [zoomed, setZoomed] = useState(false);
+  const [idle, setIdle] = useState(false);
   const startX = useRef(0);
   const startY = useRef(0);
   const moved = useRef(false);
   const pressActive = useRef(false);
   const autoTimer = useRef(null);
+  const idleTimer = useRef(null);
 
   const tilt = Math.max(-70, Math.min(70, dragTilt));
   const TAP_THRESHOLD_PX = 6;
+
+  // Nothing touched for a few seconds -> let the idle shimmer take over;
+  // any interaction below resets the clock via markActive().
+  function scheduleIdle() {
+    clearTimeout(idleTimer.current);
+    idleTimer.current = setTimeout(() => setIdle(true), IDLE_DELAY_MS);
+  }
+  function markActive() {
+    setIdle(false);
+    scheduleIdle();
+  }
+
+  useEffect(() => {
+    scheduleIdle();
+    return () => clearTimeout(idleTimer.current);
+  }, []);
 
   // Zoom in gets a bright chime + firmer tick (this is the reveal moment);
   // zoom out only gets a light tick, so repeated tapping to show off the
@@ -42,16 +62,21 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
     setZoomed(true);
     playZoomChime();
     vibrate(18);
+    markActive();
   }
   function zoomOut() {
     setZoomed(false);
     vibrate(8);
+    markActive();
   }
 
   useEffect(() => {
     if (!autoZoom) return undefined;
+    // zoomIn is intentionally omitted — this should fire once per
+    // autoZoom true transition, not reschedule whenever it's redefined.
     autoTimer.current = setTimeout(zoomIn, AUTO_ZOOM_DELAY_MS);
     return () => clearTimeout(autoTimer.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoZoom]);
 
   // Rotation drag only makes sense at rest, but a tap (press-and-release
@@ -61,6 +86,7 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
   // so onPointerUp reads them correctly even before a re-render flushes.
   function onPointerDown(e) {
     e.preventDefault();
+    markActive();
     pressActive.current = true;
     startX.current = e.clientX;
     startY.current = e.clientY;
@@ -111,6 +137,8 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
           >
             <DiamondArt shape={shape} tint={tint} tilt={tilt} instant={dragging} className="h-full w-full" />
           </motion.div>
+
+          {!zoomed && idle ? <IdleShimmer /> : null}
 
           {!zoomed ? (
             <button
