@@ -15,7 +15,7 @@ export default function LightSweep() {
       <motion.div
         initial={{ x: "-60vw" }}
         animate={{ x: "160vw" }}
-        transition={{ duration: 1.15, ease: [0.65, 0, 0.35, 1] }}
+        transition={{ duration: 2.1, ease: [0.65, 0, 0.35, 1] }}
         className="absolute -inset-y-1/4 left-0 w-[42vw]"
         style={{
           background:
