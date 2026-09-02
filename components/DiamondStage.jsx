@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import DiamondArt, { INSCRIPTION_ANCHOR } from "./DiamondArt";
 import { Icon } from "./icons";
@@ -12,25 +12,25 @@ const ANCHOR_PCT = {
 };
 
 const ZOOM_SCALE = 3.6;
-const AUTO_ZOOM_DELAY_MS = 1100;
+const REST_BLUR_PX = 14;
 
 /**
- * The full-screen stone itself. Owns rotation, and the zoom-into-the-
- * girdle interaction that's the centerpiece of the experience: on
- * mount it auto-zooms into the trust mark + inscription once, and a
- * hotspot at that same point lets the viewer replay it any time.
- * Deliberately self-contained — DiamondExperience doesn't need to know
- * about zoom state, only that this fills the screen behind it.
+ * The full-screen stone itself. It loads out of focus — like it's
+ * still materializing on the display — and stays that way until the
+ * viewer taps: that first tap pulls it into focus, fires the light
+ * glimmer (via onFocus, so the parent's full-screen sweep can play),
+ * and zooms straight into the trust mark. After that one-time reveal,
+ * tapping anywhere just toggles the zoom, and dragging rotates it.
  */
-export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom = true }) {
+export default function DiamondStage({ shape, tint, inscriptionNumber, onFocus }) {
   const [dragTilt, setDragTilt] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [zoomed, setZoomed] = useState(false);
+  const [focused, setFocused] = useState(false);
   const startX = useRef(0);
   const startY = useRef(0);
   const moved = useRef(false);
   const pressActive = useRef(false);
-  const autoTimer = useRef(null);
 
   const tilt = Math.max(-70, Math.min(70, dragTilt));
   const TAP_THRESHOLD_PX = 6;
@@ -48,11 +48,20 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
     vibrate(8);
   }
 
-  useEffect(() => {
-    if (!autoZoom) return undefined;
-    autoTimer.current = setTimeout(zoomIn, AUTO_ZOOM_DELAY_MS);
-    return () => clearTimeout(autoTimer.current);
-  }, [autoZoom]);
+  // The first tap does triple duty: clears the blur, tells the parent to
+  // play its full-screen light glimmer, and zooms straight to the trust
+  // mark. Every tap after that is just the ordinary zoom toggle.
+  function handleTap() {
+    if (!focused) {
+      setFocused(true);
+      onFocus?.();
+      zoomIn();
+    } else if (zoomed) {
+      zoomOut();
+    } else {
+      zoomIn();
+    }
+  }
 
   // Rotation drag only makes sense at rest, but a tap (press-and-release
   // with no meaningful movement) should toggle zoom either way, so
@@ -76,10 +85,7 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
     if (!zoomed) setDragTilt(dx * 0.35);
   }
   function onPointerUp() {
-    if (pressActive.current && !moved.current) {
-      if (zoomed) zoomOut();
-      else zoomIn();
-    }
+    if (pressActive.current && !moved.current) handleTap();
     pressActive.current = false;
     setDragging(false);
     setDragTilt(0);
@@ -105,7 +111,10 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
         >
           <motion.div
             className="absolute inset-0"
-            animate={{ scale: zoomed ? ZOOM_SCALE : 1 }}
+            animate={{
+              scale: zoomed ? ZOOM_SCALE : 1,
+              filter: focused ? "blur(0px)" : `blur(${REST_BLUR_PX}px)`,
+            }}
             transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
             style={{ transformOrigin: `${ANCHOR_PCT.left}% ${ANCHOR_PCT.top}%` }}
           >
@@ -116,9 +125,9 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                zoomIn();
+                handleTap();
               }}
-              aria-label="Inspect trust mark and inscription"
+              aria-label={focused ? "Inspect trust mark and inscription" : "Tap to focus"}
               className="absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
               style={{ left: `${ANCHOR_PCT.left}%`, top: `${ANCHOR_PCT.top}%` }}
             >

@@ -27,6 +27,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   const [sheetOpen, setSheetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("diamond");
   const [stageKey, setStageKey] = useState(0);
+  const [sweep, setSweep] = useState(false);
   const timeoutRef = useRef(null);
 
   // The parent page renders this component with key={diamond.id}, so a new
@@ -41,7 +42,8 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   function replayRecognition() {
     setRecognized(false);
     setSheetOpen(false);
-    setStageKey((k) => k + 1); // remounts DiamondStage, clearing its zoom/tilt state too
+    setSweep(false); // so the light glimmer is ready to fire again on the next first tap
+    setStageKey((k) => k + 1); // remounts DiamondStage, clearing its focus/zoom/tilt state too
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => fireRecognized(setRecognized), RECOGNITION_MS);
   }
@@ -69,10 +71,9 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
         {!recognized ? <RecognitionOverlay diamondName={diamond.name} /> : null}
       </AnimatePresence>
 
-      {/* Mounts fresh (and plays its one-shot animation) each time
-          recognition completes — the initial reveal, and each replay,
-          since stageKey changes and recognized cycles false→true. */}
-      {recognized ? <LightSweep key={stageKey} /> : null}
+      {/* Fires from DiamondStage's onFocus — the viewer's first tap on the
+          still-blurry stone — rather than automatically on recognition. */}
+      {sweep ? <LightSweep key={stageKey} /> : null}
 
       <motion.div
         className="absolute inset-0"
@@ -84,7 +85,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
           shape={diamond.shape}
           tint={tint}
           inscriptionNumber={giaRecord?.reportNumber}
-          autoZoom={recognized}
+          onFocus={() => setSweep(true)}
         />
 
         <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/55 via-black/15 to-transparent px-4 pb-12 pt-5 sm:px-6">
