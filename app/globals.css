@@ -36,53 +36,60 @@
   --font-ui: var(--font-family-ui);
 }
 
-* {
-  box-sizing: border-box;
-}
+/* Wrapped in Tailwind's own "base" layer (rather than left unlayered)
+   so these resets correctly lose to utility classes like
+   text-[var(--brass-ink)] on the same element. An unlayered rule
+   always beats a layered one regardless of specificity, which was
+   silently overriding any custom text color set directly on an <a>. */
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
 
-html,
-body {
-  height: 100%;
-}
+  html,
+  body {
+    height: 100%;
+  }
 
-body {
-  font-family: var(--font-family-ui);
-  -webkit-font-smoothing: antialiased;
-  font-size: 16px;
-  line-height: 1.5;
-}
+  body {
+    font-family: var(--font-family-ui);
+    -webkit-font-smoothing: antialiased;
+    font-size: 16px;
+    line-height: 1.5;
+  }
 
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--font-family-display);
-  font-weight: 400;
-  letter-spacing: -0.01em;
-  margin: 0;
-}
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-family-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
 
-button {
-  font-family: inherit;
-}
+  button {
+    font-family: inherit;
+  }
 
-a {
-  color: inherit;
-}
+  a {
+    color: inherit;
+  }
 
-/* accessible focus ring, never color-only */
-:focus {
-  outline: none;
-}
-:focus-visible {
-  outline: 2px solid var(--brass);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
+  /* accessible focus ring, never color-only */
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 
-::selection {
-  background: var(--brass-soft);
-  color: var(--ink);
+  ::selection {
+    background: var(--brass-soft);
+    color: var(--ink);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
