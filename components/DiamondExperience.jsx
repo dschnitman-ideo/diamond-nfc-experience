@@ -11,8 +11,15 @@ import ShareButton from "./ShareButton";
 import PrototypeControls from "./PrototypeControls";
 import { Icon } from "./icons";
 import { getColorTint } from "@/data/diamonds";
+import { playRecognitionChime, vibrate } from "@/lib/feedback";
 
 const RECOGNITION_MS = 800;
+
+function fireRecognized(setRecognized) {
+  setRecognized(true);
+  playRecognitionChime();
+  vibrate([12, 40, 16]);
+}
 
 export default function DiamondExperience({ diamond, tracrRecord, giaRecord, prev, next }) {
   const router = useRouter();
@@ -27,7 +34,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   // standing in for a brand new NFC tap. This effect just kicks off the
   // one-time recognition timer for that mount.
   useEffect(() => {
-    timeoutRef.current = setTimeout(() => setRecognized(true), RECOGNITION_MS);
+    timeoutRef.current = setTimeout(() => fireRecognized(setRecognized), RECOGNITION_MS);
     return () => clearTimeout(timeoutRef.current);
   }, []);
 
@@ -36,7 +43,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
     setSheetOpen(false);
     setStageKey((k) => k + 1); // remounts DiamondStage, clearing its zoom/tilt state too
     clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => setRecognized(true), RECOGNITION_MS);
+    timeoutRef.current = setTimeout(() => fireRecognized(setRecognized), RECOGNITION_MS);
   }
 
   function resetExperience() {

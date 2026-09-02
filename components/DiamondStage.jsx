@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import DiamondArt, { INSCRIPTION_ANCHOR } from "./DiamondArt";
 import { Icon } from "./icons";
+import { playZoomChime, vibrate } from "@/lib/feedback";
 
 const ANCHOR_PCT = {
   left: (INSCRIPTION_ANCHOR.x / 300) * 100,
@@ -34,9 +35,22 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
   const tilt = Math.max(-70, Math.min(70, dragTilt));
   const TAP_THRESHOLD_PX = 6;
 
+  // Zoom in gets a bright chime + firmer tick (this is the reveal moment);
+  // zoom out only gets a light tick, so repeated tapping to show off the
+  // toggle doesn't turn into a barrage of sound.
+  function zoomIn() {
+    setZoomed(true);
+    playZoomChime();
+    vibrate(18);
+  }
+  function zoomOut() {
+    setZoomed(false);
+    vibrate(8);
+  }
+
   useEffect(() => {
     if (!autoZoom) return undefined;
-    autoTimer.current = setTimeout(() => setZoomed(true), AUTO_ZOOM_DELAY_MS);
+    autoTimer.current = setTimeout(zoomIn, AUTO_ZOOM_DELAY_MS);
     return () => clearTimeout(autoTimer.current);
   }, [autoZoom]);
 
@@ -62,7 +76,10 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
     if (!zoomed) setDragTilt(dx * 0.35);
   }
   function onPointerUp() {
-    if (pressActive.current && !moved.current) setZoomed((z) => !z);
+    if (pressActive.current && !moved.current) {
+      if (zoomed) zoomOut();
+      else zoomIn();
+    }
     pressActive.current = false;
     setDragging(false);
     setDragTilt(0);
@@ -99,7 +116,7 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setZoomed(true);
+                zoomIn();
               }}
               aria-label="Inspect trust mark and inscription"
               className="absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
@@ -133,7 +150,7 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
                 </p>
               </div>
               <button
-                onClick={() => setZoomed(false)}
+                onClick={zoomOut}
                 aria-label="Zoom out"
                 className="ml-1 flex h-8 w-8 flex-none items-center justify-center rounded-full border border-[var(--hairline)] text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
               >
