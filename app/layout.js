@@ -1,16 +1,26 @@
-import { Fraunces, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const display = Fraunces({
+// GT Canon (Grilli Type) — display serif, headlines and diamond names.
+const display = localFont({
+  src: [
+    { path: "../fonts/GTCanon-Light.otf", weight: "300", style: "normal" },
+    { path: "../fonts/GTCanon-Regular.otf", weight: "400", style: "normal" },
+  ],
   variable: "--font-display",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
+  display: "swap",
 });
 
-const ui = Inter({
+// GT Standard (Grilli Type), "M" (text) optical size, Standard width —
+// trial license files, swapped in for Inter as the sans-serif.
+const ui = localFont({
+  src: [
+    { path: "../fonts/GT-Standard-M-Standard-Regular-Trial.otf", weight: "400", style: "normal" },
+    { path: "../fonts/GT-Standard-M-Standard-Medium-Trial.otf", weight: "500", style: "normal" },
+    { path: "../fonts/GT-Standard-M-Standard-Semibold-Trial.otf", weight: "600", style: "normal" },
+  ],
   variable: "--font-ui",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  display: "swap",
 });
 
 export const metadata = {

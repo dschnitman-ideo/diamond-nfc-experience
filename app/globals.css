@@ -19,7 +19,7 @@
   --status-pending-soft: rgba(201, 163, 93, 0.14);
 
   --font-family-display: var(--font-display), "Iowan Old Style", Georgia, serif;
-  --font-family-ui: var(--font-ui), "Inter", -apple-system, sans-serif;
+  --font-family-ui: var(--font-ui), -apple-system, sans-serif;
 }
 
 @theme inline {
