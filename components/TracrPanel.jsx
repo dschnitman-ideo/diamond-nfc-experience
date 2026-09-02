@@ -81,7 +81,7 @@ export default function TracrPanel({ record, giaRecord }) {
           return (
             <li key={i} className="relative flex gap-3.5 pb-5 last:pb-0">
               {!isLast ? (
-                <span className="absolute left-[5px] top-3 h-full w-px bg-[var(--hairline-strong)]" />
+                <span className="absolute left-[5px] top-3 h-full w-px bg-[var(--brass)]/40" />
               ) : null}
               <span className="relative mt-1.5 h-[11px] w-[11px] flex-none rounded-full border-2 border-[var(--brass)] bg-[var(--surface)]" />
               <div className="min-w-0">
