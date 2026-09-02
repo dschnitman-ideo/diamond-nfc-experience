@@ -26,9 +26,13 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
   const [dragging, setDragging] = useState(false);
   const [zoomed, setZoomed] = useState(false);
   const startX = useRef(0);
+  const startY = useRef(0);
+  const moved = useRef(false);
+  const pressActive = useRef(false);
   const autoTimer = useRef(null);
 
   const tilt = Math.max(-70, Math.min(70, dragTilt));
+  const TAP_THRESHOLD_PX = 6;
 
   useEffect(() => {
     if (!autoZoom) return undefined;
@@ -36,18 +40,35 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
     return () => clearTimeout(autoTimer.current);
   }, [autoZoom]);
 
+  // Rotation drag only makes sense at rest, but a tap (press-and-release
+  // with no meaningful movement) should toggle zoom either way, so
+  // pointerdown/move/up all run in both states — only the tilt math is
+  // skipped while zoomed. `pressActive`/`moved` are refs rather than state
+  // so onPointerUp reads them correctly even before a re-render flushes.
   function onPointerDown(e) {
-    if (zoomed) return;
     e.preventDefault();
-    setDragging(true);
+    pressActive.current = true;
     startX.current = e.clientX;
+    startY.current = e.clientY;
+    moved.current = false;
+    if (!zoomed) setDragging(true);
     e.currentTarget.setPointerCapture(e.pointerId);
   }
   function onPointerMove(e) {
-    if (!dragging || zoomed) return;
-    setDragTilt((e.clientX - startX.current) * 0.35);
+    if (!pressActive.current) return;
+    const dx = e.clientX - startX.current;
+    const dy = e.clientY - startY.current;
+    if (Math.abs(dx) > TAP_THRESHOLD_PX || Math.abs(dy) > TAP_THRESHOLD_PX) moved.current = true;
+    if (!zoomed) setDragTilt(dx * 0.35);
   }
-  function endDrag() {
+  function onPointerUp() {
+    if (pressActive.current && !moved.current) setZoomed((z) => !z);
+    pressActive.current = false;
+    setDragging(false);
+    setDragTilt(0);
+  }
+  function cancelDrag() {
+    pressActive.current = false;
     setDragging(false);
     setDragTilt(0);
   }
@@ -60,11 +81,10 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
           style={{ cursor: zoomed ? "default" : dragging ? "grabbing" : "grab" }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-          onPointerLeave={dragging ? endDrag : undefined}
+          onPointerUp={onPointerUp}
+          onPointerCancel={cancelDrag}
+          onPointerLeave={dragging ? cancelDrag : undefined}
           onDragStart={(e) => e.preventDefault()}
-          onClick={() => zoomed && setZoomed(false)}
         >
           <motion.div
             className="absolute inset-0"
