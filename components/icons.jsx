@@ -39,7 +39,7 @@ const ICONS = {
   trustMark: SealCheck,
 };
 
-export function Icon({ name, className = "", weight = "regular" }) {
+export function Icon({ name, className = "", weight = "bold" }) {
   const Component = ICONS[name];
   if (!Component) return null;
   return <Component className={className} weight={weight} aria-hidden="true" />;
