@@ -94,7 +94,9 @@ export default function DetailsSheet({
                     transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
                   >
                     {activeTab === "diamond" ? <DiamondPanel diamond={diamond} /> : null}
-                    {activeTab === "tracr" ? <TracrPanel record={tracrRecord} /> : null}
+                    {activeTab === "tracr" ? (
+                      <TracrPanel record={tracrRecord} giaRecord={giaRecord} />
+                    ) : null}
                     {activeTab === "gia" ? <GiaPanel record={giaRecord} /> : null}
                   </motion.div>
                 </AnimatePresence>

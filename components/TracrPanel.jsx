@@ -1,4 +1,5 @@
 import StatusBadge from "./StatusBadge";
+import { Icon } from "./icons";
 
 function formatDate(iso) {
   return new Date(iso + "T00:00:00").toLocaleDateString("en-US", {
@@ -8,7 +9,7 @@ function formatDate(iso) {
   });
 }
 
-export default function TracrPanel({ record }) {
+export default function TracrPanel({ record, giaRecord }) {
   if (!record) {
     return (
       <p className="text-sm text-[var(--ink-soft)]">
@@ -26,6 +27,9 @@ export default function TracrPanel({ record }) {
           </p>
           <p className="mt-1 font-[family-name:var(--font-display)] text-lg text-[var(--ink)]">
             {record.tracrId}
+          </p>
+          <p className="mt-1 text-xs text-[var(--ink-faint)]">
+            Registered from source on the Tracr blockchain.
           </p>
         </div>
         <StatusBadge status={record.status} />
@@ -45,6 +49,28 @@ export default function TracrPanel({ record }) {
           <p className="mt-1 text-[15px] text-[var(--ink)]">{record.roughCarat}</p>
         </div>
       </div>
+
+      {giaRecord ? (
+        <div className="mt-2.5 flex items-center justify-between gap-4 rounded-2xl border border-[var(--hairline)] bg-[var(--surface-card)] px-4 py-3.5">
+          <div className="min-w-0">
+            <p className="text-[10.5px] font-medium uppercase tracking-[0.13em] text-[var(--ink-faint)]">
+              GIA Inscription No.
+            </p>
+            <p className="mt-1 truncate text-[15px] text-[var(--ink)]">
+              GIA {giaRecord.reportNumber}
+            </p>
+          </div>
+          <a
+            href={giaRecord.reportUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-none items-center gap-1.5 text-sm font-medium text-[var(--brass)] transition-colors hover:text-[var(--ink)]"
+          >
+            GIA report
+            <Icon name="arrowUpRight" className="h-4 w-4" />
+          </a>
+        </div>
+      ) : null}
 
       <p className="mb-3 mt-6 text-[10.5px] font-medium uppercase tracking-[0.13em] text-[var(--ink-faint)]">
         Chain of custody
@@ -68,7 +94,12 @@ export default function TracrPanel({ record }) {
         })}
       </ol>
 
-      <p className="mt-6 text-[12px] italic text-[var(--ink-faint)]">
+      <p className="mt-6 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+        Sourced in alignment with the Kimberley Process and the OECD Due
+        Diligence Guidance, verified as conflict-free from origin.
+      </p>
+
+      <p className="mt-4 text-[12px] italic text-[var(--ink-faint)]">
         Prototype data: representative Tracr information for demonstration only.
       </p>
     </div>
