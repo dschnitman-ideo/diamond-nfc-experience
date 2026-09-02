@@ -5,12 +5,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import DiamondArt, { INSCRIPTION_ANCHOR } from "./DiamondArt";
 import { Icon } from "./icons";
 
-const VIEWS = [
-  { id: "face", label: "Face-up", tilt: 0 },
-  { id: "profile", label: "Profile", tilt: -40 },
-  { id: "table", label: "Angled", tilt: 22 },
-];
-
 const ANCHOR_PCT = {
   left: (INSCRIPTION_ANCHOR.x / 300) * 100,
   top: (INSCRIPTION_ANCHOR.y / 300) * 100,
@@ -28,15 +22,13 @@ const AUTO_ZOOM_DELAY_MS = 1100;
  * about zoom state, only that this fills the screen behind it.
  */
 export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom = true }) {
-  const [viewIndex, setViewIndex] = useState(0);
   const [dragTilt, setDragTilt] = useState(0);
   const [dragging, setDragging] = useState(false);
   const [zoomed, setZoomed] = useState(false);
   const startX = useRef(0);
   const autoTimer = useRef(null);
 
-  const baseTilt = VIEWS[viewIndex].tilt;
-  const tilt = Math.max(-70, Math.min(70, baseTilt + dragTilt));
+  const tilt = Math.max(-70, Math.min(70, dragTilt));
 
   useEffect(() => {
     if (!autoZoom) return undefined;
@@ -99,24 +91,6 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, autoZoom 
           ) : null}
         </div>
       </div>
-
-      {!zoomed ? (
-        <div className="pointer-events-none absolute inset-x-0 bottom-32 flex items-center justify-center gap-2">
-          {VIEWS.map((v, i) => (
-            <button
-              key={v.id}
-              onClick={() => setViewIndex(i)}
-              aria-label={`Show ${v.label} view`}
-              aria-current={i === viewIndex}
-              className="pointer-events-auto h-1.5 rounded-full transition-all duration-300"
-              style={{
-                width: i === viewIndex ? 22 : 6,
-                background: i === viewIndex ? "var(--brass)" : "var(--hairline-strong)",
-              }}
-            />
-          ))}
-        </div>
-      ) : null}
 
       <AnimatePresence>
         {zoomed ? (
