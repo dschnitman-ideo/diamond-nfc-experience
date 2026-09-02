@@ -11,13 +11,12 @@ const display = localFont({
   display: "swap",
 });
 
-// GT Standard (Grilli Type), "M" (text) optical size, Standard width —
-// trial license files, swapped in for Inter as the sans-serif.
+// GT Standard (Grilli Type) — UI sans, everything but headlines/names.
+// Same files as the diamonds-education-microsite sibling project.
 const ui = localFont({
   src: [
-    { path: "../fonts/GT-Standard-M-Standard-Regular-Trial.otf", weight: "400", style: "normal" },
-    { path: "../fonts/GT-Standard-M-Standard-Medium-Trial.otf", weight: "500", style: "normal" },
-    { path: "../fonts/GT-Standard-M-Standard-Semibold-Trial.otf", weight: "600", style: "normal" },
+    { path: "../fonts/GTStandard-Regular.otf", weight: "400", style: "normal" },
+    { path: "../fonts/GTStandard-Medium.otf", weight: "500", style: "normal" },
   ],
   variable: "--font-ui",
   display: "swap",
