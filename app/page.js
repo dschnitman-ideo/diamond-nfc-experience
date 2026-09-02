@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { diamonds } from "@/data/diamonds";
 import { Icon } from "@/components/icons";
+import DiamondMark from "@/components/DiamondMark";
 
 export const metadata = {
   title: "Diamond Experience: Prototype Index",
@@ -9,7 +10,8 @@ export const metadata = {
 export default function Home() {
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col justify-center px-6 py-16 text-[var(--ink)]">
-      <p className="text-xs font-medium uppercase tracking-[0.18em] text-[var(--brass)]">
+      <DiamondMark className="h-10 text-[var(--ink)]" />
+      <p className="mt-6 text-xs font-medium uppercase tracking-[0.18em] text-[var(--brass)]">
         Prototype
       </p>
       <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl leading-tight">
