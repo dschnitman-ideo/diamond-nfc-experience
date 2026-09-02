@@ -39,7 +39,7 @@ export default function Home() {
                 {d.shape} · {d.carat.toFixed(2)} ct
               </span>
             </span>
-            <Icon name="chevronRight" className="h-4 w-4 flex-none text-[var(--ink-faint)]" />
+            <Icon name="chevronRight" className="h-5 w-5 flex-none text-[var(--ink-faint)]" />
           </Link>
         ))}
       </div>
