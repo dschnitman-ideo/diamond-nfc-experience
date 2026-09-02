@@ -168,11 +168,51 @@ const SHAPE_RENDERERS = {
   Cushion: Cushion,
 };
 
+/**
+ * Fixed viewBox coordinate (of the 0–300 square) where the trust mark
+ * and laser inscription sit on every shape. Chosen to fall inside all
+ * four outlines' lower-right girdle area, so callers (DiamondStage) can
+ * derive a single stable hotspot/zoom-origin position — as a percentage,
+ * `anchor / 300 * 100` — without knowing each shape's own geometry.
+ */
+export const INSCRIPTION_ANCHOR = { x: 212, y: 172 };
+
+/**
+ * A tiny etched trust-mark seal and a run of laser-inscription ticks,
+ * standing in for the real micro-engraving on a girdle. Deliberately too
+ * small to read at rest — like a real inscription, it only resolves once
+ * the stage zooms in on it.
+ */
+function InscriptionMark({ anchor }) {
+  return (
+    <g transform={`translate(${anchor.x} ${anchor.y})`} opacity="0.85">
+      <circle r="2.2" fill="none" stroke="#ffffff" strokeOpacity="0.9" strokeWidth="0.4" />
+      <path
+        d="M-0.9 0.1L-0.25 0.75L1.1 -0.7"
+        fill="none"
+        stroke="#ffffff"
+        strokeOpacity="0.95"
+        strokeWidth="0.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <g stroke="#ffffff" strokeOpacity="0.55" strokeWidth="0.3" strokeLinecap="round">
+        <line x1="3.4" y1="-0.9" x2="3.4" y2="0.9" />
+        <line x1="4.3" y1="-0.9" x2="4.3" y2="0.9" />
+        <line x1="5.2" y1="-0.9" x2="5.2" y2="0.5" />
+        <line x1="6.1" y1="-0.5" x2="6.1" y2="0.9" />
+        <line x1="7.0" y1="-0.9" x2="7.0" y2="0.9" />
+      </g>
+    </g>
+  );
+}
+
 export default function DiamondArt({
   shape,
   tint = "colorless",
   tilt = 0,
   instant = false,
+  showInscription = true,
   className = "",
 }) {
   const id = `gem-${shape.replace(/\s+/g, "-").toLowerCase()}`;
@@ -190,6 +230,7 @@ export default function DiamondArt({
       <svg viewBox="0 0 300 300" className="h-full w-full" aria-hidden="true">
         <Defs id={id} tint={tint} />
         <Renderer id={id} />
+        {showInscription ? <InscriptionMark anchor={INSCRIPTION_ANCHOR} /> : null}
       </svg>
     </div>
   );

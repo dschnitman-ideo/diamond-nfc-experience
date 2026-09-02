@@ -43,6 +43,9 @@ const ICONS = {
   refresh: (
     <path d="M4 4V9H9M20 20V15H15M5.5 9C6.5 6 9.1 4 12 4C15.3 4 18.1 6.4 18.8 9.6M18.5 15C17.5 18 14.9 20 12 20C8.7 20 5.9 17.6 5.2 14.4" />
   ),
+  trustMark: (
+    <path d="M12 2L14.4 6.6L19.5 7.2L15.8 10.9L16.8 16L12 13.5L7.2 16L8.2 10.9L4.5 7.2L9.6 6.6L12 2Z M9.4 12.3L11.2 14.1L14.9 10" />
+  ),
 };
 
 export function Icon({ name, className = "", strokeWidth = 1.7 }) {

@@ -4,11 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import RecognitionOverlay from "./RecognitionOverlay";
-import SegmentedTabs from "./SegmentedTabs";
 import DiamondStage from "./DiamondStage";
-import DiamondPanel from "./DiamondPanel";
-import TracrPanel from "./TracrPanel";
-import GiaPanel from "./GiaPanel";
+import DetailsSheet from "./DetailsSheet";
 import ShareButton from "./ShareButton";
 import PrototypeControls from "./PrototypeControls";
 import { Icon } from "./icons";
@@ -19,13 +16,15 @@ const RECOGNITION_MS = 800;
 export default function DiamondExperience({ diamond, tracrRecord, giaRecord, prev, next }) {
   const router = useRouter();
   const [recognized, setRecognized] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("diamond");
+  const [stageKey, setStageKey] = useState(0);
   const timeoutRef = useRef(null);
 
   // The parent page renders this component with key={diamond.id}, so a new
-  // diamond identity fully remounts it — `recognized`/`activeTab` start
-  // fresh automatically, standing in for a brand new NFC tap. This effect
-  // just kicks off the one-time recognition timer for that mount.
+  // diamond identity fully remounts it — state starts fresh automatically,
+  // standing in for a brand new NFC tap. This effect just kicks off the
+  // one-time recognition timer for that mount.
   useEffect(() => {
     timeoutRef.current = setTimeout(() => setRecognized(true), RECOGNITION_MS);
     return () => clearTimeout(timeoutRef.current);
@@ -33,6 +32,8 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
 
   function replayRecognition() {
     setRecognized(false);
+    setSheetOpen(false);
+    setStageKey((k) => k + 1); // remounts DiamondStage, clearing its zoom/tilt state too
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => setRecognized(true), RECOGNITION_MS);
   }
@@ -42,88 +43,87 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
     replayRecognition();
   }
 
+  function jumpTab(tab) {
+    setActiveTab(tab);
+    setSheetOpen(true);
+  }
+
+  function navigateTo(id) {
+    setSheetOpen(false);
+    router.push(`/diamond/${id}`);
+  }
+
   const tint = getColorTint(diamond.color);
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 pb-28 pt-5 sm:max-w-lg sm:px-6 lg:max-w-5xl lg:px-8 lg:pt-8">
+    <div className="relative h-dvh w-full overflow-hidden bg-[var(--surface)]">
       <AnimatePresence>
         {!recognized ? <RecognitionOverlay diamondName={diamond.name} /> : null}
       </AnimatePresence>
 
       <motion.div
-        animate={{ opacity: recognized ? 1 : 0, y: recognized ? 0 : 10 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="absolute inset-0"
+        animate={{ opacity: recognized ? 1 : 0 }}
+        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
-        <header className="flex items-center justify-between">
-          <button
-            onClick={() => router.back()}
-            aria-label="Back"
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--hairline)] text-[var(--ink)] transition-colors hover:border-[var(--hairline-strong)]"
-          >
-            <Icon name="chevronLeft" className="h-[18px] w-[18px]" />
-          </button>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--ink-faint)]">
-            Diamond {diamond.id}
-          </p>
-          <ShareButton title={diamond.name} />
-        </header>
+        <DiamondStage
+          key={stageKey}
+          shape={diamond.shape}
+          tint={tint}
+          inscriptionNumber={giaRecord?.reportNumber}
+          autoZoom={recognized}
+        />
 
-        <h1 className="mt-5 font-[family-name:var(--font-display)] text-[32px] leading-[1.05] text-[var(--ink)] lg:text-[38px]">
-          {diamond.name}
-        </h1>
-        <p className="mt-1.5 text-sm text-[var(--ink-soft)]">
-          {diamond.shape} · {diamond.carat.toFixed(2)} ct
-        </p>
-
-        {/* Landscape two-column layout from lg up: stone on the left,
-            information on the right, rather than one long vertical stack. */}
-        <div className="mt-6 lg:grid lg:grid-cols-[1.05fr_0.95fr] lg:items-start lg:gap-12">
-          <div className="lg:sticky lg:top-8">
-            <DiamondStage shape={diamond.shape} tint={tint} />
-          </div>
-
-          <div className="mt-6 lg:mt-0">
-            <SegmentedTabs active={activeTab} onChange={setActiveTab} />
-
-            <div className="mt-6">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -8 }}
-                  transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  {activeTab === "diamond" ? <DiamondPanel diamond={diamond} /> : null}
-                  {activeTab === "tracr" ? <TracrPanel record={tracrRecord} /> : null}
-                  {activeTab === "gia" ? <GiaPanel record={giaRecord} /> : null}
-                </motion.div>
-              </AnimatePresence>
+        <div className="pointer-events-none absolute inset-x-0 top-0 bg-gradient-to-b from-black/55 via-black/15 to-transparent px-4 pb-12 pt-5 sm:px-6">
+          <div className="pointer-events-auto flex items-center justify-between gap-3">
+            <button
+              onClick={() => router.back()}
+              aria-label="Back"
+              className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-white/15 bg-black/30 text-[var(--ink)] backdrop-blur transition-colors hover:border-white/30"
+            >
+              <Icon name="chevronLeft" className="h-[18px] w-[18px]" />
+            </button>
+            <div className="min-w-0 text-center">
+              <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+                Diamond {diamond.id}
+              </p>
+              <p className="mt-0.5 truncate font-[family-name:var(--font-display)] text-base text-[var(--ink)]">
+                {diamond.name}
+              </p>
             </div>
-
-            <div className="mt-8 flex items-center justify-between border-t border-[var(--hairline)] pt-5">
-              <button
-                onClick={() => router.push(`/diamond/${prev.id}`)}
-                className="flex items-center gap-1.5 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
-              >
-                <Icon name="chevronLeft" className="h-4 w-4" />
-                {prev.name}
-              </button>
-              <button
-                onClick={() => router.push(`/diamond/${next.id}`)}
-                className="flex items-center gap-1.5 text-sm text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
-              >
-                {next.name}
-                <Icon name="chevronRight" className="h-4 w-4" />
-              </button>
+            <div className="flex-none">
+              <ShareButton title={diamond.name} />
             </div>
           </div>
         </div>
+
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/15 to-transparent px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-12 sm:px-6">
+          <button
+            onClick={() => setSheetOpen(true)}
+            className="pointer-events-auto mx-auto flex items-center gap-2 rounded-full border border-white/15 bg-[var(--surface-card)]/90 px-5 py-3 text-sm font-medium text-[var(--ink)] backdrop-blur transition-colors hover:border-white/30"
+          >
+            Diamond Details
+            <Icon name="chevronDown" className="h-4 w-4 rotate-180 text-[var(--ink-soft)]" />
+          </button>
+        </div>
       </motion.div>
+
+      <DetailsSheet
+        open={sheetOpen}
+        diamond={diamond}
+        tracrRecord={tracrRecord}
+        giaRecord={giaRecord}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onClose={() => setSheetOpen(false)}
+        prev={prev}
+        next={next}
+        onNavigate={navigateTo}
+      />
 
       <PrototypeControls
         currentId={diamond.id}
-        onJumpTab={setActiveTab}
+        onJumpTab={jumpTab}
         onReplay={replayRecognition}
         onReset={resetExperience}
       />
