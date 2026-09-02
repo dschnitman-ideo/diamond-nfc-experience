@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import RecognitionOverlay from "./RecognitionOverlay";
+import LightSweep from "./LightSweep";
 import DiamondStage from "./DiamondStage";
 import DetailsSheet from "./DetailsSheet";
 import ShareButton from "./ShareButton";
@@ -60,6 +61,11 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
       <AnimatePresence>
         {!recognized ? <RecognitionOverlay diamondName={diamond.name} /> : null}
       </AnimatePresence>
+
+      {/* Mounts fresh (and plays its one-shot animation) each time
+          recognition completes — the initial reveal, and each replay,
+          since stageKey changes and recognized cycles false→true. */}
+      {recognized ? <LightSweep key={stageKey} /> : null}
 
       <motion.div
         className="absolute inset-0"
