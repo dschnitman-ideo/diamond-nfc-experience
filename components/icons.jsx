@@ -19,6 +19,7 @@ import {
   Check,
   ArrowsClockwise,
   SealCheck,
+  Columns,
 } from "@phosphor-icons/react";
 
 const ICONS = {
@@ -37,6 +38,7 @@ const ICONS = {
   check: Check,
   refresh: ArrowsClockwise,
   trustMark: SealCheck,
+  compare: Columns,
 };
 
 export function Icon({ name, className = "", weight = "bold" }) {

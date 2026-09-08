@@ -6,12 +6,14 @@ import { AnimatePresence, motion } from "framer-motion";
 import RecognitionOverlay from "./RecognitionOverlay";
 import LightSweep from "./LightSweep";
 import DiamondStage from "./DiamondStage";
-import DetailsSheet from "./DetailsSheet";
+import DetailsSheet, { WIDE_LAYOUT_QUERY, SIDE_PANEL_WIDTH } from "./DetailsSheet";
 import ShareButton from "./ShareButton";
+import CompareView from "./CompareView";
 import PrototypeControls from "./PrototypeControls";
 import { Icon } from "./icons";
-import { getColorTint } from "@/data/diamonds";
+import { diamonds as allDiamonds, getColorTint } from "@/data/diamonds";
 import { playRecognitionChime, vibrate } from "@/lib/feedback";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 
 const RECOGNITION_MS = 800;
 
@@ -23,8 +25,12 @@ function fireRecognized(setRecognized) {
 
 export default function DiamondExperience({ diamond, tracrRecord, giaRecord, prev, next }) {
   const router = useRouter();
+  const isWide = useMediaQuery(WIDE_LAYOUT_QUERY);
   const [recognized, setRecognized] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [compareOpen, setCompareOpen] = useState(false);
+  const [compareLeftId, setCompareLeftId] = useState(diamond.id);
+  const [compareRightId, setCompareRightId] = useState(next?.id !== diamond.id ? next.id : prev.id);
   const [activeTab, setActiveTab] = useState("diamond");
   const [stageKey, setStageKey] = useState(0);
   const [sweep, setSweep] = useState(false);
@@ -77,7 +83,10 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
 
       <motion.div
         className="absolute inset-0"
-        animate={{ opacity: recognized ? 1 : 0 }}
+        animate={{
+          opacity: recognized ? 1 : 0,
+          right: sheetOpen && isWide ? SIDE_PANEL_WIDTH : 0,
+        }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
         <DiamondStage
@@ -105,7 +114,14 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
                 {diamond.name}
               </p>
             </div>
-            <div className="flex-none">
+            <div className="flex flex-none items-center gap-2">
+              <button
+                onClick={() => setCompareOpen(true)}
+                aria-label="Compare diamonds"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--hairline)] text-[var(--ink)] transition-colors hover:border-[var(--hairline-strong)]"
+              >
+                <Icon name="compare" className="h-[18px] w-[18px]" />
+              </button>
               <ShareButton title={diamond.name} />
             </div>
           </div>
@@ -133,6 +149,16 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
         prev={prev}
         next={next}
         onNavigate={navigateTo}
+      />
+
+      <CompareView
+        open={compareOpen}
+        onClose={() => setCompareOpen(false)}
+        diamonds={allDiamonds}
+        leftId={compareLeftId}
+        rightId={compareRightId}
+        onChangeLeft={setCompareLeftId}
+        onChangeRight={setCompareRightId}
       />
 
       <PrototypeControls

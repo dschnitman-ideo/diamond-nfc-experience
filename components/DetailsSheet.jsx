@@ -7,12 +7,25 @@ import TracrPanel from "./TracrPanel";
 import GiaPanel from "./GiaPanel";
 import SaveShareButton from "./SaveShareButton";
 import { Icon } from "./icons";
+import { useMediaQuery } from "@/lib/useMediaQuery";
+
+/**
+ * Tablet-landscape and up — matches DiamondExperience's stage inset.
+ * Requires landscape explicitly (not just width) so a portrait iPad,
+ * which is narrower, doesn't get a side panel it doesn't have the
+ * width to spare for.
+ */
+export const WIDE_LAYOUT_QUERY = "(min-width: 1024px) and (orientation: landscape)";
+export const SIDE_PANEL_WIDTH = 440;
 
 /**
  * The metadata + tabs (Diamond / Tracr / GIA), pulled out of the
  * full-screen stone view into a separate sheet the viewer opens
  * deliberately — "Diamond Details" — rather than something they scroll
- * past on the way to the stone.
+ * past on the way to the stone. On a narrow (phone) viewport this is a
+ * bottom sheet the viewer swipes down to dismiss; on a wide (iPad
+ * landscape+) viewport there's room to dock it as a persistent side
+ * panel instead, so the stone and its details sit side by side.
  */
 export default function DetailsSheet({
   open,
@@ -26,41 +39,62 @@ export default function DetailsSheet({
   next,
   onNavigate,
 }) {
+  const isWide = useMediaQuery(WIDE_LAYOUT_QUERY);
+
   return (
     <AnimatePresence>
       {open ? (
         <>
-          <motion.button
-            key="scrim"
-            aria-label="Close diamond details"
-            onClick={onClose}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-40 bg-black/60"
-          />
+          {!isWide ? (
+            <motion.button
+              key="scrim"
+              aria-label="Close diamond details"
+              onClick={onClose}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              className="fixed inset-0 z-40 bg-black/60"
+            />
+          ) : null}
           <motion.div
             key="sheet"
             role="dialog"
             aria-modal="true"
             aria-label={`${diamond.name} details`}
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
+            initial={isWide ? { x: "100%" } : { y: "100%" }}
+            animate={isWide ? { x: 0 } : { y: 0 }}
+            exit={isWide ? { x: "100%" } : { y: "100%" }}
             transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-            drag="y"
-            dragConstraints={{ top: 0, bottom: 0 }}
-            dragElastic={{ top: 0, bottom: 0.4 }}
+            drag={isWide ? "x" : "y"}
+            dragConstraints={isWide ? { left: 0, right: 0 } : { top: 0, bottom: 0 }}
+            dragElastic={isWide ? { left: 0, right: 0.4 } : { top: 0, bottom: 0.4 }}
             onDragEnd={(_, info) => {
-              if (info.offset.y > 120 || info.velocity.y > 600) onClose();
+              if (isWide) {
+                if (info.offset.x > 120 || info.velocity.x > 600) onClose();
+              } else if (info.offset.y > 120 || info.velocity.y > 600) {
+                onClose();
+              }
             }}
-            className="fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col rounded-t-[28px] border-t border-[var(--hairline-strong)] bg-[var(--surface)] pt-2.5 shadow-2xl shadow-black/50"
+            style={isWide ? { width: SIDE_PANEL_WIDTH, maxWidth: "92vw" } : undefined}
+            className={
+              isWide
+                ? "fixed inset-y-0 right-0 z-50 flex flex-col border-l border-[var(--hairline-strong)] bg-[var(--surface)] shadow-2xl shadow-black/50"
+                : "fixed inset-x-0 bottom-0 z-50 flex max-h-[88dvh] flex-col rounded-t-[28px] border-t border-[var(--hairline-strong)] bg-[var(--surface)] pt-2.5 shadow-2xl shadow-black/50"
+            }
           >
-            <div className="mx-auto h-1 w-9 flex-none rounded-full bg-[var(--hairline-strong)]" />
+            {!isWide ? (
+              <div className="mx-auto h-1 w-9 flex-none rounded-full bg-[var(--hairline-strong)]" />
+            ) : null}
 
-            <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden">
-              <div className="flex items-start justify-between gap-4 px-5 pt-4">
+            <div
+              className={
+                isWide
+                  ? "flex w-full flex-1 flex-col overflow-hidden"
+                  : "mx-auto flex w-full max-w-2xl flex-1 flex-col overflow-hidden"
+              }
+            >
+              <div className={`flex items-start justify-between gap-4 px-5 ${isWide ? "pt-5" : "pt-4"}`}>
                 <div className="min-w-0">
                   <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--ink-faint)]">
                     Diamond {diamond.id}
