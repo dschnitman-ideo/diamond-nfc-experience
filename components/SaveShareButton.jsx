@@ -78,7 +78,7 @@ export default function SaveShareButton({ diamond, giaRecord, tracrRecord }) {
   }
 
   return (
-    <div className="mt-8 border-t border-[var(--hairline)] pt-5">
+    <div className="mt-3">
       <button
         onClick={handleClick}
         disabled={busy}

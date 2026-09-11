@@ -93,7 +93,7 @@ export default function DetailsSheet({
               }
             >
               <div
-                className={`flex items-center justify-between gap-4 border-b border-[var(--hairline)] px-5 pb-4 ${isWide ? "pt-5" : "pt-4"}`}
+                className={`flex items-center justify-between gap-4 border-b border-[var(--hairline)] px-5 pb-3 ${isWide ? "pt-5" : "pt-4"}`}
               >
                 <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
                   About this inscription &amp; symbol
@@ -107,7 +107,7 @@ export default function DetailsSheet({
                 </button>
               </div>
 
-              <div className="mt-5 flex-1 overflow-y-auto px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
+              <div className="flex-1 overflow-y-auto px-5 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
                 <InscriptionInfo />
 
                 <div className="my-6 h-px bg-[var(--hairline)]" />
