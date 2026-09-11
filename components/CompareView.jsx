@@ -1,20 +1,23 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import DiamondArt, { INSCRIPTION_ANCHOR } from "./DiamondArt";
 import StatusBadge from "./StatusBadge";
 import { Icon } from "./icons";
-import { getColorTint } from "@/data/diamonds";
 import { getTracrRecord } from "@/data/tracr";
 import { getGiaRecord } from "@/data/gia";
 import { playZoomChime, vibrate } from "@/lib/feedback";
 
-const ANCHOR_PCT = {
-  left: (INSCRIPTION_ANCHOR.x / 300) * 100,
-  top: (INSCRIPTION_ANCHOR.y / 300) * 100,
+const EASE = [0.22, 1, 0.36, 1];
+
+/** Same girdle hotspot used on the main stage's default view. */
+const HOTSPOT = { left: 50, top: 38 };
+const REST_STONE = { src: "/diamond-stage/level-1-default.png", alt: "Diamond, full view" };
+const ZOOM_STONE = {
+  src: "/diamond-stage/level-3-inscription.png",
+  alt: "Diamond, closest view of the laser inscription",
 };
-const ZOOM_SCALE = 3.2;
 
 function SpecItem({ label, value }) {
   return (
@@ -50,11 +53,13 @@ function TrustRow({ iconName, label, status, value, sub }) {
 }
 
 /**
- * The stone card + zoom toggle, keyed by diamond id from ComparePanel so
- * swapping in a different diamond remounts it fresh — a new stone starts
- * at rest rather than carrying over the previous stone's zoom state.
+ * The stone card + zoom toggle. Crossfades between the real default
+ * and closest-inscription photos (the same pair DiamondStage uses)
+ * rather than a per-diamond render, since the photography isn't
+ * per-shape — keyed by diamond id from ComparePanel so swapping in a
+ * different diamond still resets the zoom state.
  */
-function ZoomableStone({ diamond, tint, giaRecord }) {
+function ZoomableStone({ giaRecord }) {
   const [zoomed, setZoomed] = useState(false);
 
   function toggleZoom() {
@@ -66,30 +71,40 @@ function ZoomableStone({ diamond, tint, giaRecord }) {
     });
   }
 
+  const stone = zoomed ? ZOOM_STONE : REST_STONE;
+
   return (
     <>
-      <div className="relative mt-3 aspect-square w-full flex-none overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--surface-card)] p-4">
-        <motion.div
-          className="absolute inset-0"
-          animate={{ scale: zoomed ? ZOOM_SCALE : 1 }}
-          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-          style={{ transformOrigin: `${ANCHOR_PCT.left}% ${ANCHOR_PCT.top}%` }}
-        >
-          <DiamondArt shape={diamond.shape} tint={tint} showInscription className="h-full w-full" />
-        </motion.div>
+      <button
+        type="button"
+        onClick={toggleZoom}
+        aria-label={zoomed ? "Zoom out of trust mark" : "Zoom into trust mark"}
+        className="relative mt-3 aspect-square w-full flex-none cursor-pointer overflow-hidden rounded-2xl border border-[var(--hairline)] bg-[var(--surface-card)] p-4"
+      >
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={zoomed ? "zoom" : "rest"}
+            className="absolute inset-0"
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.97 }}
+            transition={{ duration: 0.5, ease: EASE }}
+          >
+            <Image src={stone.src} alt={stone.alt} fill sizes="280px" className="object-contain" />
+          </motion.div>
+        </AnimatePresence>
 
-        <button
-          onClick={toggleZoom}
-          aria-label={zoomed ? "Zoom out of trust mark" : "Zoom into trust mark"}
-          className="absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-          style={{ left: `${ANCHOR_PCT.left}%`, top: `${ANCHOR_PCT.top}%` }}
-        >
-          {!zoomed ? (
+        {!zoomed ? (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+            style={{ left: `${HOTSPOT.left}%`, top: `${HOTSPOT.top}%` }}
+          >
             <span className="absolute h-full w-full animate-ping rounded-full border border-[var(--brass)]/70" />
-          ) : null}
-          <span className="relative h-2.5 w-2.5 rounded-full bg-[var(--brass)]" />
-        </button>
-      </div>
+            <span className="relative h-2.5 w-2.5 rounded-full bg-[var(--brass)]" />
+          </span>
+        ) : null}
+      </button>
 
       <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-[11px] text-[var(--ink-faint)]">
         {zoomed ? (
@@ -112,7 +127,6 @@ function ComparePanel({ diamondId, diamonds, onChange }) {
   const diamond = diamonds[index] ?? diamonds[0];
   const tracrRecord = getTracrRecord(diamond.id);
   const giaRecord = getGiaRecord(diamond.id);
-  const tint = getColorTint(diamond.color);
 
   function step(dir) {
     const nextIndex = (index + dir + diamonds.length) % diamonds.length;
@@ -146,7 +160,7 @@ function ComparePanel({ diamondId, diamonds, onChange }) {
         </button>
       </div>
 
-      <ZoomableStone key={diamond.id} diamond={diamond} tint={tint} giaRecord={giaRecord} />
+      <ZoomableStone key={diamond.id} giaRecord={giaRecord} />
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <SpecItem label="Shape" value={diamond.shape} />

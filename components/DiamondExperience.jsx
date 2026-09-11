@@ -135,8 +135,8 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
             onClick={() => setSheetOpen(true)}
             className="pointer-events-auto mx-auto flex items-center gap-2 rounded-full border border-white/15 bg-[var(--surface-card)]/90 px-5 py-3 text-sm font-medium text-[var(--ink)] backdrop-blur transition-colors hover:border-white/30"
           >
+            <Icon name="chevronLeft" className="h-4 w-4 text-[var(--ink-soft)]" />
             Diamond Details
-            <Icon name="chevronDown" className="h-4 w-4 rotate-180 text-[var(--ink-soft)]" />
           </button>
         </div>
       </motion.div>
