@@ -31,7 +31,6 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   const [compareOpen, setCompareOpen] = useState(false);
   const [compareLeftId, setCompareLeftId] = useState(diamond.id);
   const [compareRightId, setCompareRightId] = useState(next?.id !== diamond.id ? next.id : prev.id);
-  const [activeTab, setActiveTab] = useState("diamond");
   const [stageKey, setStageKey] = useState(0);
   const [sweep, setSweep] = useState(false);
   const timeoutRef = useRef(null);
@@ -55,12 +54,10 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   }
 
   function resetExperience() {
-    setActiveTab("diamond");
     replayRecognition();
   }
 
-  function jumpTab(tab) {
-    setActiveTab(tab);
+  function openDetails() {
     setSheetOpen(true);
   }
 
@@ -98,15 +95,21 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
         />
 
         <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black/55 via-black/15 to-transparent px-4 pb-12 pt-5 sm:px-6">
-          <div className="pointer-events-auto flex items-center justify-between gap-3">
-            <button
-              onClick={() => router.back()}
-              aria-label="Back"
-              className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-white/15 bg-black/30 text-[var(--ink)] backdrop-blur transition-colors hover:border-white/30"
-            >
-              <Icon name="chevronLeft" className="h-[18px] w-[18px]" />
-            </button>
-            <div className="min-w-0 text-center">
+          <div className="pointer-events-auto flex items-center gap-3">
+            {/* Equal-width flex-1 side groups (rather than justify-between)
+                so the title lands on the stage's true horizontal center —
+                lining up with DiamondStage's "Inscription found" label —
+                regardless of how wide the two side button groups are. */}
+            <div className="flex flex-1 justify-start">
+              <button
+                onClick={() => router.back()}
+                aria-label="Back"
+                className="flex h-10 w-10 flex-none items-center justify-center rounded-full border border-white/15 bg-black/30 text-[var(--ink)] backdrop-blur transition-colors hover:border-white/30"
+              >
+                <Icon name="chevronLeft" className="h-[18px] w-[18px]" />
+              </button>
+            </div>
+            <div className="min-w-0 flex-none text-center">
               <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--ink-faint)]">
                 Diamond {diamond.id}
               </p>
@@ -114,7 +117,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
                 {diamond.name}
               </p>
             </div>
-            <div className="flex flex-none items-center gap-2">
+            <div className="flex flex-1 items-center justify-end gap-2">
               <button
                 onClick={() => setCompareOpen(true)}
                 aria-label="Compare diamonds"
@@ -143,8 +146,6 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
         diamond={diamond}
         tracrRecord={tracrRecord}
         giaRecord={giaRecord}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
         onClose={() => setSheetOpen(false)}
         prev={prev}
         next={next}
@@ -163,7 +164,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
 
       <PrototypeControls
         currentId={diamond.id}
-        onJumpTab={jumpTab}
+        onOpenDetails={openDetails}
         onReplay={replayRecognition}
         onReset={resetExperience}
       />

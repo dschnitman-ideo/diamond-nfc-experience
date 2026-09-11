@@ -5,15 +5,13 @@ import { useRouter } from "next/navigation";
 import { diamonds } from "@/data/diamonds";
 import { Icon } from "./icons";
 
-const TABS = ["diamond", "tracr", "gia"];
-
 /**
  * Dev-only controls for driving this prototype. Deliberately styled as
  * an unmistakable "backstage" console (monospace, high-contrast lime
  * on black) and kept as a small closed footprint so it doesn't sit on
  * top of the consumer-facing product content underneath it.
  */
-export default function PrototypeControls({ currentId, onJumpTab, onReplay, onReset }) {
+export default function PrototypeControls({ currentId, onOpenDetails, onReplay, onReset }) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -49,22 +47,13 @@ export default function PrototypeControls({ currentId, onJumpTab, onReplay, onRe
             ))}
           </div>
 
-          <p className="mb-1.5 mt-3 text-[10px] uppercase tracking-wider text-lime-400/70">
-            Jump to tab
-          </p>
-          <div className="flex gap-1.5">
-            {TABS.map((t) => (
-              <button
-                key={t}
-                onClick={() => onJumpTab(t)}
-                className="flex-1 rounded-md border border-lime-400/30 px-2 py-1 capitalize hover:border-lime-400/60"
-              >
-                {t}
-              </button>
-            ))}
-          </div>
-
           <div className="mt-3 flex flex-col gap-1.5">
+            <button
+              onClick={onOpenDetails}
+              className="rounded-md border border-lime-400/30 px-2 py-1.5 text-left hover:border-lime-400/60"
+            >
+              Open details
+            </button>
             <button
               onClick={onReplay}
               className="rounded-md border border-lime-400/30 px-2 py-1.5 text-left hover:border-lime-400/60"

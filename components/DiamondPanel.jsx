@@ -4,12 +4,16 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "./icons";
 
-function SpecItem({ label, value }) {
+function SpecItem({ label, tag, value }) {
   return (
     <div className="rounded-2xl border border-[var(--hairline)] bg-[var(--surface-card)] px-4 py-3.5">
-      <p className="text-[10.5px] font-medium uppercase tracking-[0.13em] text-[var(--ink-faint)]">
-        {label}
-      </p>
+      {tag ? (
+        <p className="text-[11px] text-[var(--ink-faint)]">{tag}</p>
+      ) : (
+        <p className="text-[10.5px] font-medium uppercase tracking-[0.13em] text-[var(--ink-faint)]">
+          {label}
+        </p>
+      )}
       <p className="mt-1 font-[family-name:var(--font-display)] text-lg leading-tight text-[var(--ink)]">
         {value}
       </p>
@@ -17,17 +21,13 @@ function SpecItem({ label, value }) {
   );
 }
 
-export default function DiamondPanel({ diamond }) {
+export default function DiamondPanel({ diamond, inscriptionNumber }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <div>
-      <p className="text-[15px] leading-relaxed text-[var(--ink-soft)]">
-        {diamond.description}
-      </p>
-
-      <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-        <SpecItem label="Shape" value={diamond.shape} />
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+        <SpecItem label="Shape" tag={inscriptionNumber} value={diamond.shape} />
         <SpecItem label="Carat" value={`${diamond.carat.toFixed(2)} ct`} />
         <SpecItem label="Cut" value={diamond.cut} />
         <SpecItem label="Color" value={diamond.color} />

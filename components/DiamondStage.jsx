@@ -1,154 +1,135 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import DiamondArt, { INSCRIPTION_ANCHOR } from "./DiamondArt";
 import { Icon } from "./icons";
 import { playZoomChime, vibrate } from "@/lib/feedback";
 
-const ANCHOR_PCT = {
-  left: (INSCRIPTION_ANCHOR.x / 300) * 100,
-  top: (INSCRIPTION_ANCHOR.y / 300) * 100,
-};
-
-const ZOOM_SCALE = 3.6;
-const REST_BLUR_PX = 14;
+const EASE = [0.22, 1, 0.36, 1];
 
 /**
- * The full-screen stone itself. It loads out of focus — like it's
- * still materializing on the display — and stays that way until the
- * viewer taps: that first tap pulls it into focus, fires the light
- * glimmer (via onFocus, so the parent's full-screen sweep can play),
- * and zooms straight into the trust mark. After that one-time reveal,
- * tapping anywhere just toggles the zoom, and dragging rotates it.
+ * The three real-photography zoom levels, standing in for the SVG
+ * illustration this stage used to render. Each tap steps forward one
+ * level; from the closest level a tap starts the sequence over.
  */
-export default function DiamondStage({ shape, tint, inscriptionNumber, onFocus }) {
-  const [dragTilt, setDragTilt] = useState(0);
-  const [dragging, setDragging] = useState(false);
-  const [zoomed, setZoomed] = useState(false);
-  const [focused, setFocused] = useState(false);
-  const startX = useRef(0);
-  const startY = useRef(0);
-  const moved = useRef(false);
-  const pressActive = useRef(false);
+const STAGES = [
+  {
+    src: "/diamond-stage/level-1-default.png",
+    alt: "Diamond, full view",
+    // The girdle sits high in this wide shot, right where the crown
+    // facets meet the pavilion.
+    hotspot: { left: 50, top: 38 },
+  },
+  {
+    src: "/diamond-stage/level-2-close.png",
+    alt: "Diamond, closer view of the girdle",
+    // Cropped tighter on the girdle band, which now sits mid-frame.
+    hotspot: { left: 50, top: 56 },
+  },
+  { src: "/diamond-stage/level-3-inscription.png", alt: "Diamond, closest view of the laser inscription" },
+];
+const MAX_LEVEL = STAGES.length - 1;
 
-  const tilt = Math.max(-70, Math.min(70, dragTilt));
-  const TAP_THRESHOLD_PX = 6;
+/**
+ * The full-screen stone itself. Starts on the zoomed-out product shot;
+ * each tap steps into the next, closer photo, crossfading rather than
+ * cutting. The first tap also fires onFocus, once, so the parent's
+ * full-screen light sweep still plays on the viewer's first touch —
+ * a tap from the final, closest level starts the sequence over.
+ */
+export default function DiamondStage({ inscriptionNumber, onFocus }) {
+  const [level, setLevel] = useState(0);
+  const hasFocused = useRef(false);
 
-  // Zoom in gets a bright chime + firmer tick (this is the reveal moment);
-  // zoom out only gets a light tick, so repeated tapping to show off the
-  // toggle doesn't turn into a barrage of sound.
-  function zoomIn() {
-    setZoomed(true);
-    playZoomChime();
-    vibrate(18);
-  }
-  function zoomOut() {
-    setZoomed(false);
-    vibrate(8);
-  }
-
-  // The first tap does triple duty: clears the blur, tells the parent to
-  // play its full-screen light glimmer, and zooms straight to the trust
-  // mark. Every tap after that is just the ordinary zoom toggle.
   function handleTap() {
-    if (!focused) {
-      setFocused(true);
+    if (!hasFocused.current) {
+      hasFocused.current = true;
       onFocus?.();
-      zoomIn();
-    } else if (zoomed) {
-      zoomOut();
+    }
+    if (level >= MAX_LEVEL) {
+      setLevel(0);
+      vibrate(8);
     } else {
-      zoomIn();
+      setLevel((l) => l + 1);
+      playZoomChime();
+      vibrate(18);
     }
   }
 
-  // Rotation drag only makes sense at rest, but a tap (press-and-release
-  // with no meaningful movement) should toggle zoom either way, so
-  // pointerdown/move/up all run in both states — only the tilt math is
-  // skipped while zoomed. `pressActive`/`moved` are refs rather than state
-  // so onPointerUp reads them correctly even before a re-render flushes.
-  function onPointerDown(e) {
-    e.preventDefault();
-    pressActive.current = true;
-    startX.current = e.clientX;
-    startY.current = e.clientY;
-    moved.current = false;
-    if (!zoomed) setDragging(true);
-    e.currentTarget.setPointerCapture(e.pointerId);
-  }
-  function onPointerMove(e) {
-    if (!pressActive.current) return;
-    const dx = e.clientX - startX.current;
-    const dy = e.clientY - startY.current;
-    if (Math.abs(dx) > TAP_THRESHOLD_PX || Math.abs(dy) > TAP_THRESHOLD_PX) moved.current = true;
-    if (!zoomed) setDragTilt(dx * 0.35);
-  }
-  function onPointerUp() {
-    if (pressActive.current && !moved.current) handleTap();
-    pressActive.current = false;
-    setDragging(false);
-    setDragTilt(0);
-  }
-  function cancelDrag() {
-    pressActive.current = false;
-    setDragging(false);
-    setDragTilt(0);
-  }
+  const stage = STAGES[level];
+  const atFinalLevel = level === MAX_LEVEL;
 
   return (
     <div className="relative h-full w-full">
       <div className="absolute inset-0 flex items-center justify-center overflow-hidden">
-        <div
-          className="relative aspect-square w-[min(92vw,62vh)] touch-pan-y select-none"
-          style={{ cursor: zoomed ? "default" : dragging ? "grabbing" : "grab" }}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={cancelDrag}
-          onPointerLeave={dragging ? cancelDrag : undefined}
-          onDragStart={(e) => e.preventDefault()}
-        >
-          <motion.div
-            className="absolute inset-0"
-            animate={{
-              scale: zoomed ? ZOOM_SCALE : 1,
-              filter: focused ? "blur(0px)" : `blur(${REST_BLUR_PX}px)`,
-            }}
-            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-            style={{ transformOrigin: `${ANCHOR_PCT.left}% ${ANCHOR_PCT.top}%` }}
-          >
-            <DiamondArt shape={shape} tint={tint} tilt={tilt} instant={dragging} className="h-full w-full" />
-          </motion.div>
+        <div className="relative flex w-[min(110vw,74vh)] flex-col items-center gap-4">
+          <AnimatePresence>
+            {atFinalLevel ? (
+              <motion.p
+                key="inscription-found"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ duration: 0.4, ease: EASE }}
+                className="font-[family-name:var(--font-family-ui)] text-sm font-medium uppercase tracking-[0.14em] text-[var(--ink)]"
+              >
+                Inscription found
+              </motion.p>
+            ) : null}
+          </AnimatePresence>
 
-          {!zoomed ? (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleTap();
-              }}
-              aria-label={focused ? "Inspect trust mark and inscription" : "Tap to focus"}
-              className="absolute flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-              style={{ left: `${ANCHOR_PCT.left}%`, top: `${ANCHOR_PCT.top}%` }}
-            >
-              <span className="absolute h-full w-full animate-ping rounded-full border border-[var(--brass)]/70" />
-              <span className="relative h-3 w-3 rounded-full bg-[var(--brass)]" />
-            </button>
-          ) : null}
+          <button
+            type="button"
+            onClick={handleTap}
+            aria-label={atFinalLevel ? "Start over from the full view" : "Zoom in on the diamond"}
+            className="relative aspect-square w-full cursor-pointer touch-manipulation select-none"
+          >
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={level}
+                className="absolute inset-0"
+                initial={{ opacity: 0, scale: 1.06 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.6, ease: EASE }}
+              >
+                <Image
+                  src={stage.src}
+                  alt={stage.alt}
+                  fill
+                  sizes="(min-width: 1024px) 440px, 92vw"
+                  className="object-contain"
+                  priority={level === 0}
+                />
+              </motion.div>
+            </AnimatePresence>
+
+            {!atFinalLevel ? (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute z-10 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
+                style={{ left: `${stage.hotspot.left}%`, top: `${stage.hotspot.top}%` }}
+              >
+                <span className="absolute h-full w-full animate-ping rounded-full border border-[var(--brass)]/70" />
+                <span className="relative h-3 w-3 rounded-full bg-[var(--brass)]" />
+              </span>
+            ) : null}
+          </button>
         </div>
       </div>
 
       <AnimatePresence>
-        {zoomed ? (
+        {atFinalLevel ? (
           <motion.div
             key="inscription-callout"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            transition={{ delay: 0.35, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ delay: 0.25, duration: 0.4, ease: EASE }}
             className="pointer-events-none absolute inset-x-0 bottom-32 z-20 flex justify-center px-6"
           >
-            <div className="pointer-events-auto flex items-center gap-3 rounded-2xl border border-[var(--hairline-strong)] bg-[var(--surface-card)]/95 px-4 py-3.5 shadow-xl shadow-black/40 backdrop-blur">
+            <div className="flex items-center gap-3 rounded-2xl border border-[var(--hairline-strong)] bg-[var(--surface-card)]/95 px-4 py-3.5 shadow-xl shadow-black/40 backdrop-blur">
               <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[var(--brass-soft)] text-[var(--brass)]">
                 <Icon name="trustMark" className="h-[18px] w-[18px]" />
               </span>
@@ -158,13 +139,6 @@ export default function DiamondStage({ shape, tint, inscriptionNumber, onFocus }
                   Inscription · GIA {inscriptionNumber}
                 </p>
               </div>
-              <button
-                onClick={zoomOut}
-                aria-label="Zoom out"
-                className="ml-1 flex h-8 w-8 flex-none items-center justify-center rounded-full border border-[var(--hairline)] text-[var(--ink-soft)] transition-colors hover:text-[var(--ink)]"
-              >
-                <Icon name="close" className="h-4 w-4" />
-              </button>
             </div>
           </motion.div>
         ) : null}
