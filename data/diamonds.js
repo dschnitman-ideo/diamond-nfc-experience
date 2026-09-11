@@ -79,13 +79,6 @@ export function getDiamond(id) {
   return diamonds.find((d) => d.id === id) ?? null;
 }
 
-const COLOR_ORDER = "DEFGHIJKLMNOPQRSTUVWXYZ";
-
-/** Colorless grades render bright/blue-white; K and warmer render with a faint tint. */
-export function getColorTint(colorGrade) {
-  return COLOR_ORDER.indexOf(colorGrade) <= 9 ? "colorless" : "warm";
-}
-
 export function getAdjacentDiamonds(id) {
   const index = diamonds.findIndex((d) => d.id === id);
   if (index === -1) return { prev: null, next: null };

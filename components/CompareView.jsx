@@ -7,17 +7,10 @@ import StatusBadge from "./StatusBadge";
 import { Icon } from "./icons";
 import { getTracrRecord } from "@/data/tracr";
 import { getGiaRecord } from "@/data/gia";
+import { getStageImages } from "@/data/diamondStageImages";
 import { playZoomChime, vibrate } from "@/lib/feedback";
 
 const EASE = [0.22, 1, 0.36, 1];
-
-/** Same girdle hotspot used on the main stage's default view. */
-const HOTSPOT = { left: 50, top: 38 };
-const REST_STONE = { src: "/diamond-stage/level-1-default.png", alt: "Diamond, full view" };
-const ZOOM_STONE = {
-  src: "/diamond-stage/level-3-inscription.png",
-  alt: "Diamond, closest view of the laser inscription",
-};
 
 function SpecItem({ label, value }) {
   return (
@@ -53,14 +46,14 @@ function TrustRow({ iconName, label, status, value, sub }) {
 }
 
 /**
- * The stone card + zoom toggle. Crossfades between the real default
- * and closest-inscription photos (the same pair DiamondStage uses)
- * rather than a per-diamond render, since the photography isn't
- * per-shape — keyed by diamond id from ComparePanel so swapping in a
- * different diamond still resets the zoom state.
+ * The stone card + zoom toggle. Crossfades between that diamond's own
+ * default and closest-inscription photos (the same pair/set
+ * DiamondStage uses) — keyed by diamond id from ComparePanel so
+ * swapping in a different diamond still resets the zoom state.
  */
-function ZoomableStone({ giaRecord }) {
+function ZoomableStone({ diamondId, giaRecord }) {
   const [zoomed, setZoomed] = useState(false);
+  const stages = getStageImages(diamondId);
 
   function toggleZoom() {
     setZoomed((z) => {
@@ -71,7 +64,9 @@ function ZoomableStone({ giaRecord }) {
     });
   }
 
-  const stone = zoomed ? ZOOM_STONE : REST_STONE;
+  const restStage = stages[0];
+  const zoomStage = stages[stages.length - 1];
+  const stone = zoomed ? zoomStage : restStage;
 
   return (
     <>
@@ -98,7 +93,7 @@ function ZoomableStone({ giaRecord }) {
           <span
             aria-hidden="true"
             className="pointer-events-none absolute flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-            style={{ left: `${HOTSPOT.left}%`, top: `${HOTSPOT.top}%` }}
+            style={{ left: `${restStage.hotspot.left}%`, top: `${restStage.hotspot.top}%` }}
           >
             <span className="absolute h-full w-full animate-ping rounded-full border border-[var(--brass)]/70" />
             <span className="relative h-2.5 w-2.5 rounded-full bg-[var(--brass)]" />
@@ -160,7 +155,7 @@ function ComparePanel({ diamondId, diamonds, onChange }) {
         </button>
       </div>
 
-      <ZoomableStone key={diamond.id} giaRecord={giaRecord} />
+      <ZoomableStone key={diamond.id} diamondId={diamond.id} giaRecord={giaRecord} />
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <SpecItem label="Shape" value={diamond.shape} />

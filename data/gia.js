@@ -10,13 +10,13 @@
 
 export const giaRecords = {
   "001": {
-    reportNumber: "2245789631",
+    reportNumber: "7346554795",
     status: "Verified",
     reportDate: "2024-03-02",
     reportUrl: "/gia/sample-report.pdf",
   },
   "002": {
-    reportNumber: "6209187423",
+    reportNumber: "6261314219",
     status: "Verified",
     reportDate: "2024-01-15",
     reportUrl: "/gia/sample-report.pdf",

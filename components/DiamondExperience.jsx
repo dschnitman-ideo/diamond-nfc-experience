@@ -11,7 +11,7 @@ import ShareButton from "./ShareButton";
 import CompareView from "./CompareView";
 import PrototypeControls from "./PrototypeControls";
 import { Icon } from "./icons";
-import { diamonds as allDiamonds, getColorTint } from "@/data/diamonds";
+import { diamonds as allDiamonds } from "@/data/diamonds";
 import { playRecognitionChime, vibrate } from "@/lib/feedback";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 
@@ -29,8 +29,11 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   const [recognized, setRecognized] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
-  const [compareLeftId, setCompareLeftId] = useState(diamond.id);
-  const [compareRightId, setCompareRightId] = useState(next?.id !== diamond.id ? next.id : prev.id);
+  // Always default to 001/002 — the two stones with their own real
+  // photography — rather than whichever diamond happens to be open,
+  // since any other pairing falls back to duplicate placeholder shots.
+  const [compareLeftId, setCompareLeftId] = useState("001");
+  const [compareRightId, setCompareRightId] = useState("002");
   const [stageKey, setStageKey] = useState(0);
   const [sweep, setSweep] = useState(false);
   const timeoutRef = useRef(null);
@@ -66,8 +69,6 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
     router.push(`/diamond/${id}`);
   }
 
-  const tint = getColorTint(diamond.color);
-
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-[var(--surface)]">
       <AnimatePresence>
@@ -88,8 +89,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
       >
         <DiamondStage
           key={stageKey}
-          shape={diamond.shape}
-          tint={tint}
+          diamondId={diamond.id}
           inscriptionNumber={giaRecord?.reportNumber}
           onFocus={() => setSweep(true)}
         />
