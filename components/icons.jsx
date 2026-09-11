@@ -21,6 +21,7 @@ import {
   SealCheck,
   Columns,
   Plus,
+  MagnifyingGlass,
 } from "@phosphor-icons/react";
 
 const ICONS = {
@@ -41,6 +42,7 @@ const ICONS = {
   trustMark: SealCheck,
   compare: Columns,
   plus: Plus,
+  search: MagnifyingGlass,
 };
 
 export function Icon({ name, className = "", weight = "bold" }) {
