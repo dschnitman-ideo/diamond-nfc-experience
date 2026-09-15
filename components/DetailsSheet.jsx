@@ -109,7 +109,7 @@ export default function DetailsSheet({
             className={
               isWide
                 ? "fixed inset-y-0 right-0 z-50 flex flex-col border-l border-[var(--hairline-strong)] bg-[var(--surface)] shadow-2xl shadow-black/50"
-                : "fixed inset-x-4 z-50 flex max-h-[82dvh] flex-col overflow-hidden rounded-[28px] border border-[var(--hairline-strong)] bg-[var(--surface)] shadow-2xl shadow-black/50"
+                : "fixed inset-x-6 z-50 flex max-h-[82dvh] flex-col overflow-hidden rounded-[28px] border border-[var(--hairline-strong)] bg-[var(--surface)] shadow-2xl shadow-black/50"
             }
           >
             {/* This wrapper is deliberately full width, not capped —
@@ -118,7 +118,7 @@ export default function DetailsSheet({
                 viewport), so full-bleed panels stay full-bleed at any
                 size instead of matching a separate, narrower text
                 column. Regular text content gets its own local
-                `mx-auto max-w-2xl px-5` wrapper below instead of one
+                `mx-auto max-w-2xl px-7` wrapper below instead of one
                 shared here. */}
             <div className="flex w-full flex-1 flex-col overflow-hidden">
               <div className="thin-scrollbar flex-1 overflow-y-auto pb-6">
@@ -130,13 +130,13 @@ export default function DetailsSheet({
                   onClose={onClose}
                 />
 
-                <div className="mx-auto max-w-2xl px-5">
+                <div className="mx-auto max-w-2xl px-7">
                   <div className="my-6 h-px bg-[var(--hairline)]" />
                 </div>
 
                 <DiamondStory diamond={diamond} tracrRecord={tracrRecord} />
 
-                <div className="mx-auto max-w-2xl px-5">
+                <div className="mx-auto max-w-2xl px-7">
                   {giaRecord?.reportUrl ? (
                     <a
                       href={giaRecord.reportUrl}

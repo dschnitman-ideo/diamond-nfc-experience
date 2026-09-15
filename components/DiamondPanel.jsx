@@ -61,7 +61,7 @@ export default function DiamondPanel({
       <div className="w-full rounded-t-[28px] bg-[#bfbfb1] pb-14 pt-2.5">
         <div className="mx-auto h-1 w-9 rounded-full bg-[var(--hairline-strong)]" />
 
-        <div className="mx-auto mt-4 flex w-full max-w-2xl items-center justify-between gap-4 px-5 pb-4">
+        <div className="mx-auto mt-4 flex w-full max-w-2xl items-center justify-between gap-4 px-7 pb-4">
           <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
             Diamond details
           </p>
@@ -74,7 +74,7 @@ export default function DiamondPanel({
           </button>
         </div>
 
-        <div className="mx-auto max-w-2xl px-5">
+        <div className="mx-auto max-w-2xl px-7">
           <div className="grid grid-cols-2 gap-x-6">
             <div className="space-y-6">
               <Field label="Carat" value={`${diamond.carat.toFixed(2)} ct`} />
@@ -117,7 +117,7 @@ export default function DiamondPanel({
           radius, so khaki stays visible as flanking strips beside the
           curve instead of khaki's own corners bulging inward. */}
       <div className="-mt-7 w-full rounded-t-[28px] bg-[var(--surface)] pb-2 pt-9">
-        <div className="mx-auto max-w-2xl px-5">
+        <div className="mx-auto max-w-2xl px-7">
           <button
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}

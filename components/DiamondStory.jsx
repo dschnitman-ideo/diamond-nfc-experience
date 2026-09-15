@@ -83,7 +83,7 @@ export default function DiamondStory({ diamond, tracrRecord }) {
 
   return (
     <div>
-      <div className="mx-auto max-w-2xl px-5">
+      <div className="mx-auto max-w-2xl px-7">
         <button
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
@@ -107,7 +107,7 @@ export default function DiamondStory({ diamond, tracrRecord }) {
             transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
             className="overflow-hidden"
           >
-            <div className="mx-auto max-w-2xl space-y-6 px-5">
+            <div className="mx-auto max-w-2xl space-y-6 px-7">
               <div className="mt-5 grid grid-cols-2 gap-2.5">
                 <StoryPhoto image={STORY_IMAGES.eye} aspect="aspect-square" onOpen={setLightboxImage} />
                 <StoryPhoto
