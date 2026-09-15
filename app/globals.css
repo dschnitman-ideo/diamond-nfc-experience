@@ -111,3 +111,21 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* a slim, quiet scrollbar for the details sheet's vertical scroll —
+   the browser default reads as a thick, distracting bar next to the
+   sheet's own content */
+.thin-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--hairline-strong) transparent;
+}
+.thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: var(--hairline-strong);
+  border-radius: 9999px;
+}

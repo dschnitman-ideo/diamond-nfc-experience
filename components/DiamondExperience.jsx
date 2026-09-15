@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import RecognitionOverlay from "./RecognitionOverlay";
 import LightSweep from "./LightSweep";
 import DiamondStage from "./DiamondStage";
-import DetailsSheet, { WIDE_LAYOUT_QUERY, SIDE_PANEL_WIDTH } from "./DetailsSheet";
+import DetailsSheet, { WIDE_LAYOUT_QUERY, SIDE_PANEL_WIDTH, FORCE_BOTTOM_SHEET } from "./DetailsSheet";
 import ShareButton from "./ShareButton";
 import CompareView from "./CompareView";
 import PrototypeControls from "./PrototypeControls";
@@ -25,7 +25,8 @@ function fireRecognized(setRecognized) {
 
 export default function DiamondExperience({ diamond, tracrRecord, giaRecord, prev, next }) {
   const router = useRouter();
-  const isWide = useMediaQuery(WIDE_LAYOUT_QUERY);
+  const wideViewport = useMediaQuery(WIDE_LAYOUT_QUERY);
+  const isWide = FORCE_BOTTOM_SHEET ? false : wideViewport;
   const [recognized, setRecognized] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
@@ -90,6 +91,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
         <DiamondStage
           key={stageKey}
           diamondId={diamond.id}
+          shape={diamond.shape}
           inscriptionNumber={giaRecord?.reportNumber}
           onFocus={() => setSweep(true)}
         />
