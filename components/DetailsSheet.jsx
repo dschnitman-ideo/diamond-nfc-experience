@@ -3,7 +3,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import DiamondPanel from "./DiamondPanel";
 import DiamondStory from "./DiamondStory";
-import SaveShareButton from "./SaveShareButton";
 import { Icon } from "./icons";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 
@@ -26,7 +25,7 @@ export const FORCE_BOTTOM_SHEET = true;
  * frame (Frame 2.pdf) — warm eggshell page, near-black ink, soft
  * warm-gray rules. Set as CSS custom properties on the sheet's own
  * root so every descendant that already reads `var(--surface)` /
- * `var(--ink)` / etc. (DiamondPanel, DiamondStory, SaveShareButton,
+ * `var(--ink)` / etc. (DiamondPanel, DiamondStory,
  * the icons) picks it up automatically, without
  * touching the app-wide dark tokens in globals.css that the stage and
  * recognition overlay still rely on.
@@ -149,8 +148,6 @@ export default function DetailsSheet({
                       <Icon name="arrowUpRight" className="h-4 w-4" />
                     </a>
                   ) : null}
-
-                  <SaveShareButton diamond={diamond} giaRecord={giaRecord} tracrRecord={tracrRecord} />
 
                   <div className="mt-6 flex items-center justify-between">
                     <button
