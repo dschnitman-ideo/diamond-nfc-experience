@@ -14,7 +14,7 @@ export const diamondStageImages = {
     {
       src: "/diamond-stage/001/level-2-close.png",
       alt: "Diamond, closer view of the girdle",
-      hotspot: { left: 50, top: 56 },
+      hotspot: { left: 50, top: 75 },
     },
     {
       src: "/diamond-stage/001/level-3-inscription.png",
@@ -30,7 +30,7 @@ export const diamondStageImages = {
     {
       src: "/diamond-stage/002/level-2-close.png",
       alt: "Diamond, closer view of the girdle",
-      hotspot: { left: 50, top: 52 },
+      hotspot: { left: 51, top: 58 },
     },
     {
       src: "/diamond-stage/002/level-3-inscription.png",

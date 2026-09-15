@@ -12,9 +12,11 @@ import ChevronToggle from "./ChevronToggle";
  */
 function Field({ label, value, size = "hero", className = "" }) {
   const valueClass =
-    size === "hero"
-      ? "text-[clamp(1.6rem,7.2vw,2.2rem)] leading-[1.0]"
-      : "text-2xl leading-tight";
+    size === "letter"
+      ? "text-[clamp(3.5rem,20vw,6.5rem)] leading-[0.85]"
+      : size === "hero"
+      ? "text-[clamp(2.2rem,9vw,3rem)] leading-[0.95]"
+      : "text-3xl leading-tight";
   return (
     <div className={`border-t border-[var(--hairline-strong)] pt-2.5 ${className}`}>
       <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
@@ -76,7 +78,7 @@ export default function DiamondPanel({
           <div className="grid grid-cols-2 gap-x-6">
             <div className="space-y-6">
               <Field label="Carat" value={`${diamond.carat.toFixed(2)} ct`} />
-              <Field label="Colour" value={diamond.color} />
+              <Field label="Colour" value={diamond.color} size="letter" />
               {reportUrl ? (
                 <a
                   href={reportUrl}
