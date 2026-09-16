@@ -7,6 +7,7 @@ import RecognitionOverlay from "./RecognitionOverlay";
 import LightSweep from "./LightSweep";
 import DiamondStage from "./DiamondStage";
 import DetailsSheet, { WIDE_LAYOUT_QUERY, SIDE_PANEL_WIDTH, FORCE_BOTTOM_SHEET } from "./DetailsSheet";
+import InscriptionPanel from "./InscriptionPanel";
 import ShareButton from "./ShareButton";
 import CompareView from "./CompareView";
 import PrototypeControls from "./PrototypeControls";
@@ -84,7 +85,8 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
         className="absolute inset-0"
         animate={{
           opacity: recognized ? 1 : 0,
-          right: sheetOpen && isWide ? SIDE_PANEL_WIDTH : 0,
+          right:
+            (wideViewport ? SIDE_PANEL_WIDTH : 0) + (sheetOpen && isWide ? SIDE_PANEL_WIDTH : 0),
         }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
@@ -142,6 +144,10 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
           </button>
         </div>
       </motion.div>
+
+      <AnimatePresence>
+        {recognized && wideViewport ? <InscriptionPanel key="inscription-panel" /> : null}
+      </AnimatePresence>
 
       <DetailsSheet
         open={sheetOpen}
