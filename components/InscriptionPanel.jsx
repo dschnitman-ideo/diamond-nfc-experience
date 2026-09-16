@@ -32,7 +32,7 @@ export default function InscriptionPanel() {
 
       <div className="flex-1" />
 
-      <DiamondMark className="h-8 w-8 text-black" />
+      <DiamondMark className="h-14 w-14 text-black" />
       <p className="mt-4 text-[15px] leading-relaxed text-black">
         This symbol means a diamond has been authenticated as natural, formed
         in the earth&rsquo;s mantle, is a one-of-one, ancient, and holds
