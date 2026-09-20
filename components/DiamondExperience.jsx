@@ -7,7 +7,7 @@ import RecognitionOverlay from "./RecognitionOverlay";
 import LightSweep from "./LightSweep";
 import DiamondStage from "./DiamondStage";
 import DetailsSheet, { WIDE_LAYOUT_QUERY, SIDE_PANEL_WIDTH, FORCE_BOTTOM_SHEET } from "./DetailsSheet";
-import InscriptionPanel from "./InscriptionPanel";
+import SidePanelStack, { STACK_RAIL_TOTAL } from "./SidePanelStack";
 import ShareButton from "./ShareButton";
 import CompareView from "./CompareView";
 import PrototypeControls from "./PrototypeControls";
@@ -85,8 +85,13 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
         className="absolute inset-0"
         animate={{
           opacity: recognized ? 1 : 0,
+          // On wide viewports the stage stops short of the whole
+          // right-hand stack — the olive inscription panel plus the two
+          // closed rails beside it — so nothing in the photo sits
+          // permanently hidden behind them.
           right:
-            (wideViewport ? SIDE_PANEL_WIDTH : 0) + (sheetOpen && isWide ? SIDE_PANEL_WIDTH : 0),
+            (wideViewport ? SIDE_PANEL_WIDTH + STACK_RAIL_TOTAL : 0) +
+            (sheetOpen && isWide ? SIDE_PANEL_WIDTH : 0),
         }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
@@ -134,7 +139,10 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
           </div>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/60 via-black/15 to-transparent px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-12 sm:px-6">
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/60 via-black/15 to-transparent px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-12 sm:px-6"
+          hidden={wideViewport}
+        >
           <button
             onClick={() => setSheetOpen(true)}
             className="pointer-events-auto mx-auto flex items-center gap-2 rounded-full border border-white/15 bg-[var(--surface-card)]/90 px-5 py-3 text-sm font-medium text-[var(--ink)] backdrop-blur transition-colors hover:border-white/30"
@@ -146,7 +154,9 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
       </motion.div>
 
       <AnimatePresence>
-        {recognized && wideViewport ? <InscriptionPanel key="inscription-panel" /> : null}
+        {recognized && wideViewport ? (
+          <SidePanelStack key="side-panels" diamond={diamond} tracrRecord={tracrRecord} />
+        ) : null}
       </AnimatePresence>
 
       <DetailsSheet

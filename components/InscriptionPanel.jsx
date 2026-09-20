@@ -3,14 +3,21 @@
 import { motion } from "framer-motion";
 import DiamondMark from "./DiamondMark";
 import { SIDE_PANEL_WIDTH } from "./DetailsSheet";
+import { CARD_OVERLAP } from "./SidePanelStack";
 
 /**
- * The wide-viewport companion to the stone view — docked permanently
- * on the right (not opened by a button, unlike the phone's bottom
- * sheet) so the inscription explainer sits alongside the photo rather
- * than covering it. Olive, not the details sheet's eggshell — a
- * deliberately different surface for a deliberately different kind of
- * content: one plain-language explainer, not the full spec sheet.
+ * The wide-viewport companion to the stone view — the rightmost,
+ * permanently open board in SidePanelStack (not opened by a button,
+ * unlike the two slide-out panels beside it) so the inscription
+ * explainer always sits alongside the photo. Olive, not the story
+ * board's eggshell — a deliberately different surface for a
+ * deliberately different kind of content: one plain-language
+ * explainer, not the full spec sheet.
+ *
+ * Rounded on the left like every other card in the stack, and pulled
+ * left by the same CARD_OVERLAP to sit on top of the specs rail's
+ * right edge — that overlap is what the rounded notch reveals instead
+ * of the black stage behind the whole stack.
  */
 export default function InscriptionPanel() {
   return (
@@ -19,8 +26,8 @@ export default function InscriptionPanel() {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 24 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      style={{ width: SIDE_PANEL_WIDTH }}
-      className="fixed inset-y-0 right-0 z-30 flex flex-col rounded-l-[28px] bg-[#838557] px-9 py-10 shadow-2xl shadow-black/40"
+      style={{ width: SIDE_PANEL_WIDTH, marginLeft: -CARD_OVERLAP, borderRadius: "28px 0 0 28px" }}
+      className="pointer-events-auto relative flex h-full flex-none flex-col bg-[#838557] px-9 py-10 shadow-[-18px_0_40px_rgba(0,0,0,0.3)]"
     >
       <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-black">
         About this inscription &amp; symbol
