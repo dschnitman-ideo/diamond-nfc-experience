@@ -48,7 +48,7 @@ export const STACK_RAIL_TOTAL = RAIL_WIDTH * 2 - CARD_OVERLAP * 2;
 const BOARD_WIDTH = "clamp(320px, min(46vw, 100vw - 740px), 680px)";
 
 const PANELS = [
-  { id: "story", label: "About\nthis\ndiamond", surface: "#eff2eb" },
+  { id: "story", label: "About", surface: "#eff2eb" },
   { id: "specs", label: "4Cs", surface: "#c3c6b6" },
 ];
 
@@ -116,7 +116,6 @@ export default function SidePanelStack({ diamond, tracrRecord }) {
         panel={PANELS[0]}
         open={openPanel === "story"}
         onToggle={() => toggle("story")}
-        roundLeft
       >
         <StoryPanel diamond={diamond} tracrRecord={tracrRecord} />
       </CollapsiblePanel>
