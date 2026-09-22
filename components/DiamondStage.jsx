@@ -10,6 +10,11 @@ import { playZoomChime, vibrate } from "@/lib/feedback";
 
 const EASE = [0.22, 1, 0.36, 1];
 
+// Flip to false to restore the normal tap-to-zoom start. True skips
+// straight to the closest (inscription) level so the authenticated
+// screen is what's live on load, without tapping through first.
+const START_AT_FINAL_LEVEL = true;
+
 /** A single chamfered corner accent — decorative, echoes a hallmark/seal frame. */
 function CornerAccent({ className = "" }) {
   return (
@@ -36,11 +41,11 @@ function CornerAccent({ className = "" }) {
  * the full "authenticated" treatment — corner accents, edge labels,
  * a confirmation headline — rather than just a small callout pill.
  */
-export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFocus }) {
-  const [level, setLevel] = useState(0);
-  const hasFocused = useRef(false);
+export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFocus, compact = false }) {
   const stages = getStageImages(diamondId);
   const maxLevel = stages.length - 1;
+  const [level, setLevel] = useState(START_AT_FINAL_LEVEL ? maxLevel : 0);
+  const hasFocused = useRef(START_AT_FINAL_LEVEL);
 
   function handleTap() {
     if (!hasFocused.current) {
@@ -138,27 +143,40 @@ export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFo
               }}
             />
 
-            <CornerAccent className="absolute left-4 top-20 h-12 w-12 sm:left-6" />
-            <CornerAccent className="absolute right-4 top-20 h-12 w-12 -scale-x-100 sm:right-6" />
-            <CornerAccent className="absolute bottom-24 left-4 h-12 w-12 -scale-y-100 sm:left-6" />
-            <CornerAccent className="absolute bottom-24 right-4 h-12 w-12 -scale-x-100 -scale-y-100 sm:right-6" />
+            {!compact ? (
+              <>
+                <CornerAccent className="absolute left-4 top-20 h-12 w-12 sm:left-6" />
+                <CornerAccent className="absolute right-4 top-20 h-12 w-12 -scale-x-100 sm:right-6" />
+                <CornerAccent className="absolute bottom-24 left-4 h-12 w-12 -scale-y-100 sm:left-6" />
+                <CornerAccent className="absolute bottom-24 right-4 h-12 w-12 -scale-x-100 -scale-y-100 sm:right-6" />
 
-            <p className="absolute left-1/2 top-20 -translate-x-1/2 whitespace-nowrap text-[11px] uppercase tracking-[0.25em] text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
-              {shape ? `${shape} · ` : ""}Natural Diamond
-            </p>
+                <p className="absolute left-1/2 top-20 -translate-x-1/2 whitespace-nowrap text-[11px] uppercase tracking-[0.25em] text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
+                  {shape ? `${shape} · ` : ""}Natural Diamond
+                </p>
 
-            <p className="absolute left-4 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-white/80 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)] sm:left-6">
-              Authenticated
-            </p>
-            <p className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-white/80 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)] sm:right-6">
-              Authenticated
-            </p>
+                <p className="absolute left-4 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-white/80 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)] sm:left-6">
+                  Authenticated
+                </p>
+                <p className="absolute right-4 top-1/2 -translate-y-1/2 rotate-90 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-white/80 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)] sm:right-6">
+                  Authenticated
+                </p>
+              </>
+            ) : null}
 
+            {/* fixed, not absolute — its containing block becomes the true
+                viewport instead of this stage box, so when a side panel
+                narrows the box (see DiamondExperience's animated `right`),
+                the headline's own screen position doesn't recompute and
+                shift with it. It still paints inside this z-20 stacking
+                context (stacking context and containing block are
+                independent), so an open panel still covers it exactly like
+                it covers the photo, rather than the headline sliding to
+                stay centered on the shrinking box. */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4, ease: EASE }}
-              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2"
+              className="fixed left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2"
             >
               {/* Darkens whatever part of the photo sits behind the mark
                   and text — without it, both wash out against a bright
@@ -171,9 +189,35 @@ export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFo
                 }}
               />
               <DiamondMark className="h-11 w-11 text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]" />
-              <p className="text-center font-[family-name:var(--font-display)] text-3xl uppercase tracking-[0.35em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]">
+              {/* clip-path never changes an element's layout box — only what's
+                  painted inside it — so animating it on the real text (instead
+                  of overlaying a second copy on top of an invisible sizing
+                  copy) keeps the box the browser already centered exactly
+                  where it was, with nothing that can drift out of sync with
+                  it. The two-copy version broke on narrow screens because the
+                  invisible copy could wrap while the nowrap'd visible copy
+                  couldn't, so the reveal box and the text it was revealing
+                  disagreed on how wide a line was. */}
+              <motion.p
+                initial={{ clipPath: "inset(0 100% 0 0)" }}
+                animate={{ clipPath: "inset(0 -2% 0 0)" }}
+                transition={{ delay: 0.45, duration: 0.9, ease: "linear" }}
+                className="relative text-center font-[family-name:var(--font-display)] text-3xl uppercase tracking-[0.35em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]"
+              >
                 Inscription found
-              </p>
+                <motion.span
+                  aria-hidden="true"
+                  initial={{ left: "0%", opacity: 0 }}
+                  animate={{ left: ["0%", "100%", "100%"], opacity: [1, 1, 1, 0] }}
+                  transition={{
+                    delay: 0.45,
+                    duration: 1.2,
+                    times: [0, 0.75, 0.75, 1],
+                    ease: "linear",
+                  }}
+                  className="absolute inset-y-0 w-[3px] -translate-x-full bg-white"
+                />
+              </motion.p>
             </motion.div>
           </motion.div>
         ) : null}

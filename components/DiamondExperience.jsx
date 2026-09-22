@@ -127,6 +127,14 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
           shape={diamond.shape}
           inscriptionNumber={giaRecord?.reportNumber}
           onFocus={() => setSweep(true)}
+          // The corner accents and rotated "Authenticated" edge labels are
+          // sized for a near-full-width stage. An open side board narrows
+          // the visible stage well past that, so those edge labels close
+          // in on the centered headline instead of framing it — drop the
+          // ornamental edge chrome and keep just the centered confirmation
+          // and bottom Trust Mark pill, which already re-center cleanly at
+          // any width.
+          compact={wideViewport && stackPanelOpen}
         />
 
         <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black/55 via-black/15 to-transparent px-4 pb-12 pt-5 sm:px-6">
