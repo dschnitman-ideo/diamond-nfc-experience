@@ -7,16 +7,27 @@ import RecognitionOverlay from "./RecognitionOverlay";
 import LightSweep from "./LightSweep";
 import DiamondStage from "./DiamondStage";
 import DetailsSheet, { WIDE_LAYOUT_QUERY, SIDE_PANEL_WIDTH, FORCE_BOTTOM_SHEET } from "./DetailsSheet";
-import SidePanelStack, { STACK_RAIL_TOTAL } from "./SidePanelStack";
+import SidePanelStack, {
+  STACK_RAIL_TOTAL,
+  OPEN_PANEL_BUFFER,
+  getOpenBoardWidth,
+} from "./SidePanelStack";
 import ShareButton from "./ShareButton";
 import CompareView from "./CompareView";
 import PrototypeControls from "./PrototypeControls";
 import { Icon } from "./icons";
 import { diamonds as allDiamonds } from "@/data/diamonds";
 import { playRecognitionChime, vibrate } from "@/lib/feedback";
-import { useMediaQuery } from "@/lib/useMediaQuery";
+import { useMediaQuery, useViewportWidth } from "@/lib/useMediaQuery";
 
 const RECOGNITION_MS = 800;
+
+// However much the side stack claims, the stone itself never shrinks
+// below this — otherwise, on a moderate "wide" viewport (a laptop
+// window rather than a huge desktop display), an open board's width
+// can reserve nearly the whole screen and leave the stone a sliver so
+// thin it reads as stray black bars rather than a photo.
+const MIN_STAGE_WIDTH = 280;
 
 function fireRecognized(setRecognized) {
   setRecognized(true);
@@ -28,8 +39,10 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   const router = useRouter();
   const wideViewport = useMediaQuery(WIDE_LAYOUT_QUERY);
   const isWide = FORCE_BOTTOM_SHEET ? false : wideViewport;
+  const viewportWidth = useViewportWidth();
   const [recognized, setRecognized] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [stackPanelOpen, setStackPanelOpen] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   // Always default to 001/002 — the two stones with their own real
   // photography — rather than whichever diamond happens to be open,
@@ -52,6 +65,7 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
   function replayRecognition() {
     setRecognized(false);
     setSheetOpen(false);
+    setStackPanelOpen(false); // SidePanelStack unmounts below without a chance to report itself closed
     setSweep(false); // so the light glimmer is ready to fire again on the next first tap
     setStageKey((k) => k + 1); // remounts DiamondStage, clearing its focus/zoom/tilt state too
     clearTimeout(timeoutRef.current);
@@ -88,10 +102,22 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
           // On wide viewports the stage stops short of the whole
           // right-hand stack — the olive inscription panel plus the two
           // closed rails beside it — so nothing in the photo sits
-          // permanently hidden behind them.
-          right:
+          // permanently hidden behind them. When a rail opens its board,
+          // the stack grows further left over the stage without the
+          // stage itself pulling back to match, so the stone's visible
+          // edge lands flush against the open panel with no breathing
+          // room — pull back further here by that board's width plus a
+          // fixed buffer to fix that. Capped by MIN_STAGE_WIDTH so that
+          // reservation never eats so much of a moderate-width window
+          // that the stone is squeezed to an unreadable sliver.
+          right: Math.min(
             (wideViewport ? SIDE_PANEL_WIDTH + STACK_RAIL_TOTAL : 0) +
-            (sheetOpen && isWide ? SIDE_PANEL_WIDTH : 0),
+              (wideViewport && stackPanelOpen
+                ? getOpenBoardWidth(viewportWidth) + OPEN_PANEL_BUFFER
+                : 0) +
+              (sheetOpen && isWide ? SIDE_PANEL_WIDTH : 0),
+            viewportWidth > 0 ? Math.max(0, viewportWidth - MIN_STAGE_WIDTH) : Infinity
+          ),
         }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       >
@@ -155,7 +181,12 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
 
       <AnimatePresence>
         {recognized && wideViewport ? (
-          <SidePanelStack key="side-panels" diamond={diamond} tracrRecord={tracrRecord} />
+          <SidePanelStack
+            key="side-panels"
+            diamond={diamond}
+            tracrRecord={tracrRecord}
+            onOpenChange={setStackPanelOpen}
+          />
         ) : null}
       </AnimatePresence>
 

@@ -1,29 +1,38 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import ShaderSweep from "./ShaderSweep";
+import { glowSweepPresets } from "./glowSweepPresets";
+
+const GLASS_PRISM_PRESET = glowSweepPresets.find((p) => p.id === "glass-prism").preset;
 
 /**
- * A single diagonal streak of light that swoops across the full screen
- * once — a premium "reveal" flourish, timed to the moment the stone
- * appears. `screen` blend mode over the near-black background makes it
- * read as light hitting the scene rather than a flat gradient sliding
- * over it.
+ * A single streak of light that swoops across the full screen once — a
+ * premium "reveal" flourish, timed to the moment the stone appears.
+ * Picked on /glow-lab out of five WebGL shader presets (see
+ * ShaderSweep.jsx + glowSweepPresets.js) — "Glass Prism": a narrow,
+ * bright core with a full rainbow chromatic fringe, like light
+ * splitting through a facet.
+ *
+ * Unmounts itself once the sweep has finished, rather than leaving its
+ * WebGL canvas sitting over the whole screen forever after its render
+ * loop stops — a stale canvas layer like that was interfering with
+ * DiamondStage's own crossfades, leaving the next photo(s) it tapped
+ * through to blank out.
  */
 export default function LightSweep() {
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setVisible(false), (GLASS_PRISM_PRESET.duration + 0.3) * 1000);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  if (!visible) return null;
+
   return (
     <div className="pointer-events-none fixed inset-0 z-10 overflow-hidden">
-      <motion.div
-        initial={{ x: "-60vw" }}
-        animate={{ x: "160vw" }}
-        transition={{ duration: 2.1, ease: [0.65, 0, 0.35, 1] }}
-        className="absolute -inset-y-1/4 left-0 w-[42vw]"
-        style={{
-          background:
-            "linear-gradient(102deg, transparent 0%, rgba(255,255,255,0.05) 32%, rgba(255,255,255,0.6) 48%, rgba(201,163,93,0.5) 57%, transparent 85%)",
-          filter: "blur(3px)",
-          mixBlendMode: "screen",
-        }}
-      />
+      <ShaderSweep preset={GLASS_PRISM_PRESET} />
     </div>
   );
 }

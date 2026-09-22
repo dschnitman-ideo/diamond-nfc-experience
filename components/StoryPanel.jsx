@@ -46,7 +46,12 @@ export default function StoryPanel({ diamond, tracrRecord }) {
   const polished = getStageImages(diamond.id)[0];
 
   return (
-    <div className="flex h-full flex-col gap-[2.2vh] px-[clamp(20px,2.6vw,38px)] py-[clamp(18px,3vh,34px)] text-[#16150f]">
+    // Right padding gets an extra 28px (SidePanelStack's CARD_OVERLAP) on
+    // top of the usual clamp — the closed "specs" rail sits to this
+    // board's right and, per the fanned-deck overlap, pulls left by that
+    // same 28px and paints over it, so a plain symmetric px- here leaves
+    // almost no visible gap and content reads as flush against that rail.
+    <div className="flex h-full flex-col gap-[2.2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#16150f]">
       <div className="flex flex-none items-start gap-[clamp(14px,1.6vw,26px)]">
         <div className="relative aspect-square w-[min(15vh,22cqw)] flex-none overflow-hidden bg-[#dfe2da]">
           <Image
@@ -71,16 +76,32 @@ export default function StoryPanel({ diamond, tracrRecord }) {
         </p>
       </div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-2 gap-x-[clamp(16px,2vw,32px)] gap-y-[2vh]">
-        <div className="flex flex-col gap-[0.8vh]">
-          <Rule />
-          <Label>Age</Label>
-          <p className="whitespace-pre-line font-[family-name:var(--font-display)] text-[min(4.4vh,6.6cqw)] leading-[1.08]">
-            {AGE}
-          </p>
+      <div className="grid min-h-0 flex-1 grid-cols-2 gap-x-[clamp(16px,2vw,32px)]">
+        {/* Age and Temp+depth share a single flex column now, grouped
+            together near the top with a modest gap between them —
+            rather than each sitting in its own grid row stretched to
+            share the row-span-2 rough-diamond column's full height,
+            which pushed Temp+depth far down with a large dead gap
+            above it. */}
+        <div className="flex flex-col gap-[3vh]">
+          <div className="flex flex-col gap-[0.8vh]">
+            <Rule />
+            <Label>Age</Label>
+            <p className="whitespace-pre-line font-[family-name:var(--font-display)] text-[min(4.4vh,6.6cqw)] leading-[1.08]">
+              {AGE}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-[0.8vh]">
+            <Rule />
+            <Label>Temp + depth</Label>
+            <p className="whitespace-pre-line font-[family-name:var(--font-display)] text-[min(4.4vh,6.6cqw)] leading-[1.08]">
+              {DEPTH}
+            </p>
+          </div>
         </div>
 
-        <div className="row-span-2 flex min-h-0 flex-col gap-[0.8vh]">
+        <div className="flex min-h-0 flex-col gap-[0.8vh]">
           <Rule />
           <Label>Rough diamond it came from</Label>
           <div className="relative min-h-0 flex-1 overflow-hidden bg-[#1d2027]">
@@ -92,14 +113,6 @@ export default function StoryPanel({ diamond, tracrRecord }) {
               className="object-cover"
             />
           </div>
-        </div>
-
-        <div className="flex flex-col gap-[0.8vh] self-end">
-          <Rule />
-          <Label>Temp + depth</Label>
-          <p className="whitespace-pre-line font-[family-name:var(--font-display)] text-[min(4.4vh,6.6cqw)] leading-[1.08]">
-            {DEPTH}
-          </p>
         </div>
       </div>
     </div>

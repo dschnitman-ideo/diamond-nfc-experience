@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import InscriptionPanel from "./InscriptionPanel";
 import StoryPanel from "./StoryPanel";
 import SpecsPanel from "./SpecsPanel";
+import { playPanelOpenSound, playPanelCloseSound, vibrate } from "@/lib/feedback";
 
 /**
  * The wide-viewport right-hand stack: two slide-out panels tucked to
@@ -21,10 +22,6 @@ import SpecsPanel from "./SpecsPanel";
  */
 
 export const RAIL_WIDTH = 104;
-// The cards float clear of the screen edges instead of bleeding into
-// them, so every corner that is actually exposed — the left pair on
-// each card — reads as a corner rather than as a clipped edge.
-export const STACK_INSET_Y = 14;
 export const CARD_RADIUS = 28;
 // Every card rounds its own left corners — a fanned deck, not a single
 // rounded rectangle sliced into thirds. Each card (after the first)
@@ -45,7 +42,27 @@ export const STACK_RAIL_TOTAL = RAIL_WIDTH * 2 - CARD_OVERLAP * 2;
 // against the viewport alone, so an open board never runs off the left
 // edge on a 1024–1200px landscape iPad — a sliver of the stone always
 // stays visible beside it.
-const BOARD_WIDTH = "clamp(320px, min(46vw, 100vw - 740px), 680px)";
+const BOARD_WIDTH_MIN = 320;
+const BOARD_WIDTH_MAX = 680;
+const BOARD_WIDTH = `clamp(${BOARD_WIDTH_MIN}px, min(46vw, 100vw - 740px), ${BOARD_WIDTH_MAX}px)`;
+
+// The stage doesn't resize when a board opens — it just gets covered
+// more — so DiamondExperience uses this to also pull its own visible
+// edge back by the board's width (see getOpenBoardWidth), so the
+// stone's visible edge lines up with where the board actually starts
+// instead of getting cropped by it. Zero here (rather than a further
+// fixed gap) so that edge sits flush against the board's own left-edge
+// shadow — the shadow itself reads as the breathing room, instead of a
+// second, separate strip of exposed black behind it.
+export const OPEN_PANEL_BUFFER = 0;
+
+// Mirrors the BOARD_WIDTH clamp above numerically, so DiamondExperience
+// can reserve the right amount of extra stage width for whichever
+// board is currently open without measuring the DOM.
+export function getOpenBoardWidth(viewportWidth) {
+  const preferred = Math.min(0.46 * viewportWidth, viewportWidth - 740);
+  return Math.min(BOARD_WIDTH_MAX, Math.max(BOARD_WIDTH_MIN, preferred));
+}
 
 const PANELS = [
   { id: "story", label: "About", surface: "#eff2eb" },
@@ -100,17 +117,32 @@ function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) 
   );
 }
 
-export default function SidePanelStack({ diamond, tracrRecord }) {
+export default function SidePanelStack({ diamond, tracrRecord, onOpenChange }) {
   const [openPanel, setOpenPanel] = useState(null);
 
+  // Reports up as its own effect, not inline in toggle()'s setState
+  // updater — that updater can re-run during React's own bookkeeping,
+  // and calling a different component's setState from inside it trips
+  // "Cannot update a component while rendering a different component".
+  useEffect(() => {
+    onOpenChange?.(openPanel !== null);
+  }, [openPanel, onOpenChange]);
+
   function toggle(id) {
-    setOpenPanel((current) => (current === id ? null : id));
+    // Reads openPanel directly (not via setOpenPanel's updater form) so
+    // the sound/vibrate side effects only ever run once per click —
+    // React 18 Strict Mode double-invokes a functional updater to
+    // surface exactly this kind of impurity.
+    const opening = openPanel !== id;
+    if (opening) playPanelOpenSound();
+    else playPanelCloseSound();
+    vibrate(10);
+    setOpenPanel(opening ? id : null);
   }
 
   return (
     <div
-      style={{ top: STACK_INSET_Y, bottom: STACK_INSET_Y }}
-      className="pointer-events-none fixed right-0 z-30 flex items-stretch justify-end"
+      className="pointer-events-none fixed inset-y-0 right-0 z-30 flex items-stretch justify-end"
     >
       <CollapsiblePanel
         panel={PANELS[0]}

@@ -37,8 +37,19 @@ function Cell({ label, children, className = "" }) {
 }
 
 function Value({ children }) {
+  const length = typeof children === "string" ? children.length : 0;
+  // Sized against the whole board's width (14cqw), not the grid column
+  // it actually sits in — fine for short values ("1.52", "VS1", "EX")
+  // but a longer, unbreakable word ("Round", "Emerald", "Cushion")
+  // renders wider than its half of the row and bleeds into whatever
+  // sits beside the panel. Cap the ceiling as length grows so long
+  // shape names still fit their own column.
+  const maxCqw = length <= 4 ? 14 : length <= 6 ? 11 : 9;
   return (
-    <p className="font-[family-name:var(--font-display)] text-[min(10vh,14cqw)] leading-[0.95] tracking-[-0.02em] text-[#16150f]">
+    <p
+      style={{ fontSize: `min(10vh, ${maxCqw}cqw)` }}
+      className="font-[family-name:var(--font-display)] leading-[0.95] tracking-[-0.02em] text-[#16150f]"
+    >
       {children}
     </p>
   );
@@ -46,7 +57,10 @@ function Value({ children }) {
 
 export default function SpecsPanel({ diamond }) {
   return (
-    <div className="flex h-full flex-col gap-[2vh] px-[clamp(20px,2.6vw,38px)] py-[clamp(18px,3vh,34px)] text-[#16150f]">
+    // See StoryPanel's identical comment: the extra 28px on the right
+    // compensates for the inscription panel's overlap eating into this
+    // board's own padding when it's open.
+    <div className="flex h-full flex-col gap-[2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#16150f]">
       <div className="flex flex-none items-start gap-4">
         <div className="min-w-0 flex-1">
           <div className="h-px w-full bg-[#16150f]/55" />

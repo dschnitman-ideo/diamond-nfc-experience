@@ -7,9 +7,9 @@
 export const diamondStageImages = {
   "001": [
     {
-      src: "/diamond-stage/001/level-1-default.png",
+      src: "/diamond-stage/001/level-1-default-cropped.png",
       alt: "Diamond, full view",
-      hotspot: { left: 50, top: 38 },
+      hotspot: { left: 50, top: 30 },
     },
     {
       src: "/diamond-stage/001/level-2-close.png",
@@ -23,9 +23,9 @@ export const diamondStageImages = {
   ],
   "002": [
     {
-      src: "/diamond-stage/002/level-1-default.png",
+      src: "/diamond-stage/002/level-1-default-cropped.png",
       alt: "Diamond, full view",
-      hotspot: { left: 50, top: 38 },
+      hotspot: { left: 50, top: 30 },
     },
     {
       src: "/diamond-stage/002/level-2-close.png",

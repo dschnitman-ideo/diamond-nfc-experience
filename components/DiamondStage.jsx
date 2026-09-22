@@ -69,7 +69,15 @@ export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFo
           aria-label={atFinalLevel ? "Start over from the full view" : "Zoom in on the diamond"}
           className="relative block h-full w-full cursor-pointer touch-manipulation select-none"
         >
-          <AnimatePresence mode="wait">
+          {/* "sync" (the default — no `mode` prop), not "wait": the
+              outgoing and incoming photos need to cross-fade over each
+              other so the stone stays visible the whole time. "wait"
+              fully fades the old photo out before the new one fades
+              in, leaving a dim gap right when LightSweep plays over
+              the first tap — reading as "sweep, then the diamond
+              appears" instead of the sweep gliding over a stone
+              that's visible throughout. */}
+          <AnimatePresence>
             <motion.div
               key={level}
               className="absolute inset-0"
@@ -83,7 +91,7 @@ export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFo
                 alt={stage.alt}
                 fill
                 sizes="100vw"
-                className={`object-cover ${level === 0 ? "scale-90" : ""}`}
+                className="object-cover"
                 priority={level === 0}
               />
             </motion.div>
@@ -163,7 +171,7 @@ export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFo
                 }}
               />
               <DiamondMark className="h-11 w-11 text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]" />
-              <p className="font-[family-name:var(--font-display)] text-3xl uppercase tracking-[0.35em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]">
+              <p className="text-center font-[family-name:var(--font-display)] text-3xl uppercase tracking-[0.35em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]">
                 Inscription found
               </p>
             </motion.div>
