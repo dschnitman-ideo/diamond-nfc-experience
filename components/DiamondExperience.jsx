@@ -85,20 +85,6 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
     router.push(`/diamond/${id}`);
   }
 
-  // The worst-case version of the stage's `right` reservation below — as
-  // if the side stack's board were always open. The stage-centered
-  // headline in DiamondStage pins its screen position to the center of
-  // THIS instead of to the live, state-dependent reservation (or to the
-  // raw viewport): it's already sitting where it'll still be clear of an
-  // open board, so opening one never moves it, and it's never centered on
-  // a wider closed-state box only to have to shift left again later.
-  const maxStageReserve = wideViewport
-    ? Math.min(
-        SIDE_PANEL_WIDTH + STACK_RAIL_TOTAL + getOpenBoardWidth(viewportWidth) + OPEN_PANEL_BUFFER,
-        viewportWidth > 0 ? Math.max(0, viewportWidth - MIN_STAGE_WIDTH) : Infinity
-      )
-    : 0;
-
   return (
     <div className="relative h-dvh w-full overflow-hidden bg-[var(--surface)]">
       <AnimatePresence>
@@ -149,7 +135,6 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
           // and bottom Trust Mark pill, which already re-center cleanly at
           // any width.
           compact={wideViewport && stackPanelOpen}
-          headlineReservePx={maxStageReserve}
         />
 
         <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black/55 via-black/15 to-transparent px-4 pb-12 pt-5 sm:px-6">

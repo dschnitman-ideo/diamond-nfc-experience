@@ -47,7 +47,6 @@ export default function DiamondStage({
   inscriptionNumber,
   onFocus,
   compact = false,
-  headlineReservePx = 0,
 }) {
   const stages = getStageImages(diamondId);
   const maxLevel = stages.length - 1;
@@ -170,30 +169,21 @@ export default function DiamondStage({
               </>
             ) : null}
 
-            {/* fixed, not absolute — its containing block becomes the true
-                viewport instead of this stage box, so when a side panel
-                narrows the box (see DiamondExperience's animated `right`),
-                the headline's own screen position doesn't recompute and
-                shift with it. It still paints inside this z-20 stacking
-                context (stacking context and containing block are
-                independent).
-
-                `left` is centered on (viewport width − headlineReservePx),
-                not on the raw viewport (50vw) — headlineReservePx is the
-                worst-case stage reservation, as if a board were already
-                open (see DiamondExperience). Centering on the raw viewport
-                put the headline's right half under the board itself once
-                one actually opened, since the board can easily cover more
-                than the left half of the screen. Centering on the
-                worst-case zone instead means the headline already sits
-                where it'll stay clear of an open board — so opening one
-                never moves it or covers it. */}
+            {/* Centered on this stage's own box, which is exactly the
+                visible grey/photo area — DiamondExperience narrows that
+                box's width (its animated `right`) as a side panel opens,
+                so centering here tracks the panel opening/closing smoothly
+                over that same transition instead of snapping. Pinning this
+                to a fixed viewport position instead (tried and reverted)
+                either ran the headline under the open panel or off the
+                left edge, because "a fixed spot" and "centered in the
+                currently-visible area" aren't the same point once that
+                area's width changes. */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4, ease: EASE }}
-              style={{ left: `calc((100vw - ${headlineReservePx}px) / 2)` }}
-              className="fixed top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2"
+              className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2"
             >
               {/* Darkens whatever part of the photo sits behind the mark
                   and text — without it, both wash out against a bright
