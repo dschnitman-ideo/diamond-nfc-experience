@@ -41,7 +41,14 @@ function CornerAccent({ className = "" }) {
  * the full "authenticated" treatment — corner accents, edge labels,
  * a confirmation headline — rather than just a small callout pill.
  */
-export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFocus, compact = false }) {
+export default function DiamondStage({
+  diamondId,
+  shape,
+  inscriptionNumber,
+  onFocus,
+  compact = false,
+  headlineReservePx = 0,
+}) {
   const stages = getStageImages(diamondId);
   const maxLevel = stages.length - 1;
   const [level, setLevel] = useState(START_AT_FINAL_LEVEL ? maxLevel : 0);
@@ -169,14 +176,24 @@ export default function DiamondStage({ diamondId, shape, inscriptionNumber, onFo
                 the headline's own screen position doesn't recompute and
                 shift with it. It still paints inside this z-20 stacking
                 context (stacking context and containing block are
-                independent), so an open panel still covers it exactly like
-                it covers the photo, rather than the headline sliding to
-                stay centered on the shrinking box. */}
+                independent).
+
+                `left` is centered on (viewport width − headlineReservePx),
+                not on the raw viewport (50vw) — headlineReservePx is the
+                worst-case stage reservation, as if a board were already
+                open (see DiamondExperience). Centering on the raw viewport
+                put the headline's right half under the board itself once
+                one actually opened, since the board can easily cover more
+                than the left half of the screen. Centering on the
+                worst-case zone instead means the headline already sits
+                where it'll stay clear of an open board — so opening one
+                never moves it or covers it. */}
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.4, ease: EASE }}
-              className="fixed left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2"
+              style={{ left: `calc((100vw - ${headlineReservePx}px) / 2)` }}
+              className="fixed top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2"
             >
               {/* Darkens whatever part of the photo sits behind the mark
                   and text — without it, both wash out against a bright
