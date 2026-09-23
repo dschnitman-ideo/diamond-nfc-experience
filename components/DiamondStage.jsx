@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { Icon } from "./icons";
 import DiamondMark from "./DiamondMark";
 import { getStageImages } from "@/data/diamondStageImages";
 import { playZoomChime, vibrate } from "@/lib/feedback";
@@ -24,7 +23,7 @@ function CornerAccent({ className = "" }) {
       className={`${className} drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]`}
       aria-hidden="true"
     >
-      <path d="M64 0H20L0 20V64" stroke="white" strokeOpacity="0.6" strokeWidth="1" />
+      <path d="M64 0H20L0 20V64" stroke="white" strokeOpacity="0.6" strokeWidth="2" />
     </svg>
   );
 }
@@ -43,13 +42,21 @@ function CornerAccent({ className = "" }) {
  */
 export default function DiamondStage({
   diamondId,
-  shape,
   inscriptionNumber,
   onFocus,
+  onOpenDetails,
+  detailsOpen = false,
   compact = false,
 }) {
   const stages = getStageImages(diamondId);
   const maxLevel = stages.length - 1;
+  // The button's first entrance is deliberately staggered behind the
+  // typewriter (see its transition below). Once it's played that once,
+  // later show/hide toggles — closing the panel with its own X, say —
+  // should feel like an immediate response to that action, not repeat
+  // the multi-second delay. State, not a ref: its value feeds straight
+  // into JSX below, and reading a ref during render isn't safe.
+  const [buttonEntered, setButtonEntered] = useState(false);
   const [level, setLevel] = useState(START_AT_FINAL_LEVEL ? maxLevel : 0);
   const hasFocused = useRef(START_AT_FINAL_LEVEL);
 
@@ -156,10 +163,6 @@ export default function DiamondStage({
                 <CornerAccent className="absolute bottom-24 left-4 h-12 w-12 -scale-y-100 sm:left-6" />
                 <CornerAccent className="absolute bottom-24 right-4 h-12 w-12 -scale-x-100 -scale-y-100 sm:right-6" />
 
-                <p className="absolute left-1/2 top-20 -translate-x-1/2 whitespace-nowrap text-[11px] uppercase tracking-[0.25em] text-white/90 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
-                  {shape ? `${shape} · ` : ""}Natural Diamond
-                </p>
-
                 <p className="absolute left-4 top-1/2 -translate-y-1/2 -rotate-90 whitespace-nowrap text-[10px] uppercase tracking-[0.3em] text-white/80 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)] sm:left-6">
                   Authenticated
                 </p>
@@ -196,6 +199,16 @@ export default function DiamondStage({
                 }}
               />
               <DiamondMark className="h-11 w-11 text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]" />
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.3, ease: EASE }}
+                className="text-center text-xs font-semibold uppercase tracking-[0.3em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]"
+              >
+                Confirmed
+              </motion.p>
+
               {/* clip-path never changes an element's layout box — only what's
                   painted inside it — so animating it on the real text (instead
                   of overlaying a second copy on top of an invisible sizing
@@ -208,23 +221,59 @@ export default function DiamondStage({
               <motion.p
                 initial={{ clipPath: "inset(0 100% 0 0)" }}
                 animate={{ clipPath: "inset(0 -2% 0 0)" }}
-                transition={{ delay: 0.45, duration: 0.9, ease: "linear" }}
-                className="relative text-center font-[family-name:var(--font-display)] text-3xl uppercase tracking-[0.35em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]"
+                transition={{ delay: 0.55, duration: 1.4, ease: "linear" }}
+                className="relative max-w-[85vw] text-center font-[family-name:var(--font-display)] text-3xl uppercase tracking-[0.35em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]"
               >
-                Inscription found
+                Authenticated natural diamond
                 <motion.span
                   aria-hidden="true"
                   initial={{ left: "0%", opacity: 0 }}
                   animate={{ left: ["0%", "100%", "100%"], opacity: [1, 1, 1, 0] }}
                   transition={{
-                    delay: 0.45,
-                    duration: 1.2,
+                    delay: 0.55,
+                    duration: 1.87,
                     times: [0, 0.75, 0.75, 1],
                     ease: "linear",
                   }}
                   className="absolute inset-y-0 w-[3px] -translate-x-full bg-white"
                 />
               </motion.p>
+
+              {/* Always mounted — toggling it in and out of the tree via
+                  AnimatePresence (a nested one, re-entering with the same
+                  key across repeated show/hide cycles) left it stuck at
+                  its exit values on some later re-entries instead of
+                  animating back in, a framer-motion quirk with this exact
+                  pattern. Animating its own opacity/y instead, the same
+                  way InscriptionPanel's collapse/expand already does
+                  reliably, sidesteps it entirely. */}
+              <motion.button
+                type="button"
+                onClick={(event) => {
+                  // The stage's own tap-to-zoom handler is bound to the
+                  // whole photo underneath this button — stop the tap
+                  // from reaching it, or clicking the button also cycles
+                  // the zoom level.
+                  event.stopPropagation();
+                  onOpenDetails?.();
+                }}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: detailsOpen ? 0 : 1, y: detailsOpen ? 6 : 0 }}
+                transition={{
+                  delay: buttonEntered ? 0 : 2.4,
+                  duration: 0.35,
+                  ease: EASE,
+                }}
+                onAnimationComplete={() => {
+                  if (!detailsOpen) setButtonEntered(true);
+                }}
+                aria-hidden={detailsOpen}
+                tabIndex={detailsOpen ? -1 : 0}
+                style={{ pointerEvents: detailsOpen ? "none" : "auto" }}
+                className="mt-2 rounded-full bg-white px-6 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#16150f] shadow-lg shadow-black/30 transition-transform hover:scale-[1.03]"
+              >
+                More about this diamond
+              </motion.button>
             </motion.div>
           </motion.div>
         ) : null}
@@ -238,19 +287,14 @@ export default function DiamondStage({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
             transition={{ delay: 0.25, duration: 0.4, ease: EASE }}
-            className="pointer-events-none absolute inset-x-0 bottom-24 z-20 flex justify-center px-6 landscape:bottom-32"
+            className="pointer-events-none absolute inset-x-0 bottom-24 z-20 flex flex-col items-center gap-1.5 px-6 text-center landscape:bottom-32"
           >
-            <div className="flex items-center gap-3 rounded-full border border-[var(--hairline-strong)] bg-[var(--surface-card)]/95 px-4 py-3.5 shadow-xl shadow-black/40 backdrop-blur">
-              <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[var(--brass-soft)] text-[var(--brass)]">
-                <Icon name="trustMark" className="h-[18px] w-[18px]" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-[13px] font-medium text-[var(--ink)]">Trust Mark Verified</p>
-                <p className="truncate text-xs text-[var(--ink-soft)]">
-                  Inscription · GIA {inscriptionNumber}
-                </p>
-              </div>
-            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/70 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
+              Unique identification
+            </p>
+            <p className="truncate text-2xl font-semibold tracking-[0.04em] text-white drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
+              GIA {inscriptionNumber}
+            </p>
           </motion.div>
         ) : null}
       </AnimatePresence>
