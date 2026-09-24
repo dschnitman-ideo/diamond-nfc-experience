@@ -42,3 +42,25 @@ export const diamondStageImages = {
 export function getStageImages(diamondId) {
   return diamondStageImages[diamondId] ?? diamondStageImages["001"];
 }
+
+/**
+ * Square close-up crops for StoryPanel's header thumbnail, one per
+ * diamond. 001 and 002 are cropped from their own close-ups; 003 and
+ * 004 have no photography yet, so theirs borrow 001's inscription shot
+ * and a mirrored 002 close-up, with the laser inscription blurred out
+ * so neither shows another stone's GIA number — swap in real crops
+ * once those stones are photographed.
+ */
+const THUMBNAILS = {
+  "001": "/diamond-stage/001/thumbnail-wide.jpg",
+  "002": "/diamond-stage/002/thumbnail-wide.jpg",
+  "003": "/diamond-stage/003/thumbnail-wide.jpg",
+  "004": "/diamond-stage/004/thumbnail-wide.jpg",
+};
+
+export function getThumbnail(diamondId) {
+  return {
+    src: THUMBNAILS[diamondId] ?? THUMBNAILS["001"],
+    alt: "Close-up of the diamond's facets",
+  };
+}

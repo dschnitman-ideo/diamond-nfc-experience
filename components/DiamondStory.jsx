@@ -7,19 +7,23 @@ import { Icon } from "./icons";
 import ChevronToggle from "./ChevronToggle";
 import ImageLightbox from "./ImageLightbox";
 import { getStageImages } from "@/data/diamondStageImages";
+import {
+  SHARED_SOURCING,
+  formatMonthYear,
+  getCustodyStep,
+  getDiamondStory,
+  splitOrigin,
+} from "@/data/diamondStories";
 
-// Verbatim from the reference frame (Frame 2.pdf).
-const FORMATION_STATS = [
-  { value: "1–3.5", label: "Billion years ago" },
-  { value: "200", label: "Kilometres underground" },
-  { value: "1,500", label: "Degrees celsius" },
-  { value: "50,000", label: "Atmospheres of pressure" },
-];
-
-function splitOrigin(origin) {
-  if (!origin) return { mine: null, country: null };
-  const parts = origin.split(",").map((p) => p.trim());
-  return { mine: parts[0], country: parts[parts.length - 1] };
+// Labels verbatim from the reference frame (Frame 2.pdf); the values
+// are this stone's own, from data/diamondStories.
+function formationStats({ ageBillions, depthKm, tempC, pressureAtm }) {
+  return [
+    { value: ageBillions, label: "Billion years ago" },
+    { value: depthKm, label: "Kilometres underground" },
+    { value: tempC, label: "Degrees celsius" },
+    { value: pressureAtm, label: "Atmospheres of pressure" },
+  ];
 }
 
 // Real photography standing in for the reference frame's "pull image
@@ -80,6 +84,12 @@ export default function DiamondStory({ diamond, tracrRecord }) {
   const [lightboxImage, setLightboxImage] = useState(null);
   const { mine, country } = splitOrigin(tracrRecord?.origin);
   const polishedImage = getStageImages(diamond.id)[1];
+  const story = getDiamondStory(diamond.id);
+  const { ageBillions, depthKm } = story.formation;
+  const cutStep = getCustodyStep(tracrRecord, "Cut & Polished");
+  const cutWhen = formatMonthYear(cutStep?.date);
+  const roughCarat = parseFloat(tracrRecord?.roughCarat);
+  const retained = roughCarat ? Math.round((diamond.carat / roughCarat) * 100) : null;
 
   return (
     <div>
@@ -90,7 +100,7 @@ export default function DiamondStory({ diamond, tracrRecord }) {
           className="flex w-full items-start justify-between gap-4 text-left"
         >
           <p className="font-[family-name:var(--font-display)] text-[2.3rem] leading-[1.02] text-[var(--ink)]">
-            This diamond has a story, just like you.
+            {diamond.name} has a story, just like you.
           </p>
           <div className="mt-1">
             <ChevronToggle expanded={expanded} />
@@ -119,7 +129,7 @@ export default function DiamondStory({ diamond, tracrRecord }) {
 
               <div className="rounded-2xl bg-[#bfbfb1] p-5">
                 <div className="grid grid-cols-2 gap-x-4 gap-y-4">
-                  {FORMATION_STATS.map((stat) => (
+                  {formationStats(story.formation).map((stat) => (
                     <div key={stat.label}>
                       <p className="font-[family-name:var(--font-display)] text-2xl leading-none text-[var(--ink)]">
                         {stat.value}
@@ -137,9 +147,9 @@ export default function DiamondStory({ diamond, tracrRecord }) {
                   It is ancient
                 </p>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--ink-soft)]">
-                  A natural diamond is formed in the Earth over billions of
-                  years. It is one of the oldest things you&rsquo;ll ever
-                  hold. It formed 200km underground.
+                  {diamond.name} formed in the Earth around {ageBillions}{" "}
+                  billion years ago, {depthKm}&nbsp;km underground. It is one
+                  of the oldest things you&rsquo;ll ever hold.
                 </p>
               </div>
 
@@ -170,28 +180,9 @@ export default function DiamondStory({ diamond, tracrRecord }) {
                   Where it&rsquo;s from
                 </p>
                 <div className="mt-1.5 space-y-3 text-[13px] leading-relaxed text-[var(--ink-soft)]">
-                  <p>
-                    This diamond is a DTC diamond. A DTC diamond refers to a
-                    diamond sourced, sorted, and sold through the Diamond
-                    Trading Company (DTC), which is the historic rough
-                    diamond distribution and sales arm of the De Beers Group.
-                  </p>
-                  <p>
-                    Diamonds from DTC are discovered in Botswana, Canada,
-                    Namibia and South Africa.
-                  </p>
-                  <p>
-                    DTC diamonds are sourced in alignment with the
-                    Organisation of Economic Cooperation and
-                    Development&rsquo;s (OECD) Due Diligence Guidance.
-                  </p>
-                  <p>
-                    It is fully compliant with the Kimberley Process (KP),
-                    which was established in 2003 to eradicate the trade in
-                    conflict diamonds and is supported by governments,
-                    diamond industry participants, customs authorities and
-                    civil society groups.
-                  </p>
+                  {[...story.source, ...SHARED_SOURCING].map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
                 </div>
                 <div className="mt-3">
                   <StoryPhoto
@@ -209,8 +200,17 @@ export default function DiamondStory({ diamond, tracrRecord }) {
                 <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--ink-soft)]">
                   A rough diamond is how the diamond comes out of the earth
                   and then is cut and polished to reveal the diamond in
-                  front of you. Ask your retailer for more details on
-                  seeing the rough stone in kimberlite.
+                  front of you.
+                  {roughCarat ? (
+                    <>
+                      {" "}
+                      {diamond.name} began as a {tracrRecord.roughCarat} rough
+                      {mine ? <> from {mine}</> : null}; about {retained}% of
+                      it remains in the {diamond.carat}&nbsp;ct polished stone.
+                    </>
+                  ) : null}{" "}
+                  Ask your retailer for more details on seeing the rough
+                  stone in kimberlite.
                 </p>
                 <div className="mt-3">
                   <StoryPhoto
@@ -226,9 +226,11 @@ export default function DiamondStory({ diamond, tracrRecord }) {
                   The polished stone
                 </p>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--ink-soft)]">
-                  This diamond has been crafted with care and precision. It
-                  is a true masterpiece of nature, created billions of years
-                  ago, embodying the enduring strength, beauty and
+                  {diamond.name} is a {diamond.carat}&nbsp;ct{" "}
+                  {diamond.shape.toLowerCase()}, {diamond.color} color,{" "}
+                  {diamond.clarity} clarity. {diamond.description} It is a
+                  true masterpiece of nature, created billions of years ago,
+                  embodying the enduring strength, beauty and
                   craftsmanship that has captivated and inspired us for
                   centuries.
                 </p>
@@ -249,6 +251,12 @@ export default function DiamondStory({ diamond, tracrRecord }) {
                   Cutting &amp; polishing
                 </p>
                 <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                  {cutStep ? (
+                    <>
+                      {diamond.name} was cut and polished in {cutStep.location}
+                      {cutWhen ? <> in {cutWhen}</> : null}.{" "}
+                    </>
+                  ) : null}
                   The stone is planned and sawn with high precision and
                   shaped towards its final form. During the cutting process
                   the diamond is continually checked and rechecked to ensure

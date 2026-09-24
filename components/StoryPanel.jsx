@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import DiamondMark from "./DiamondMark";
-import { getStageImages } from "@/data/diamondStageImages";
+import { getThumbnail } from "@/data/diamondStageImages";
+import { getDiamondStory, splitOrigin } from "@/data/diamondStories";
 
 /**
  * "About this diamond" — the provenance story, sized to fit its panel
@@ -12,22 +13,10 @@ import { getStageImages } from "@/data/diamondStageImages";
  * spilling below the fold.
  */
 
-// The stone's own formation numbers aren't per-diamond in the data
-// yet — these are the same figures DiamondStory quotes, condensed to
-// two headline facts for the panel's fixed height.
-const AGE = "1–3 Billion\nYears Old";
-const DEPTH = "200 km\nUnderground";
-
 const ROUGH_IMAGE = {
   src: "/story/rough-diamond.png",
   alt: "The rough diamond this stone was cut from",
 };
-
-function splitOrigin(origin) {
-  if (!origin) return { mine: null, country: null };
-  const parts = origin.split(",").map((p) => p.trim());
-  return { mine: parts[0], country: parts[parts.length - 1] };
-}
 
 function Label({ children }) {
   return (
@@ -42,8 +31,15 @@ function Rule() {
 }
 
 export default function StoryPanel({ diamond, tracrRecord }) {
-  const { country } = splitOrigin(tracrRecord?.origin);
-  const polished = getStageImages(diamond.id)[0];
+  const { mine, country } = splitOrigin(tracrRecord?.origin);
+  // The "Mine" label already says it — "Orapa", not "Orapa Mine".
+  const mineName = mine?.replace(/\s+Mine$/i, "");
+  const thumbnail = getThumbnail(diamond.id);
+  // Same per-stone figures DiamondStory quotes in full, condensed to
+  // two headline facts for the panel's fixed height.
+  const { formation } = getDiamondStory(diamond.id);
+  const age = `${formation.ageBillions} Billion\nYears Old`;
+  const depth = `${formation.depthKm} km\nUnderground`;
 
   return (
     // Right padding gets an extra 28px (SidePanelStack's CARD_OVERLAP) on
@@ -55,15 +51,15 @@ export default function StoryPanel({ diamond, tracrRecord }) {
       <div className="flex flex-none items-start gap-[clamp(14px,1.6vw,26px)]">
         <div className="relative aspect-square w-[min(15vh,22cqw)] flex-none overflow-hidden bg-[#dfe2da]">
           <Image
-            src={polished.src}
-            alt={polished.alt}
+            src={thumbnail.src}
+            alt={thumbnail.alt}
             fill
             sizes="150px"
             className="object-cover"
           />
         </div>
         <p className="font-[family-name:var(--font-display)] text-[min(5.2vh,8.6cqw)] leading-[1.02] tracking-[-0.01em]">
-          This diamond has a story.
+          {diamond.name} has a story.
         </p>
         <DiamondMark className="ml-auto h-[clamp(20px,2.6vh,30px)] w-[clamp(20px,2.6vh,30px)] flex-none text-[#16150f]" />
       </div>
@@ -88,7 +84,7 @@ export default function StoryPanel({ diamond, tracrRecord }) {
             <Rule />
             <Label>Age</Label>
             <p className="whitespace-pre-line font-[family-name:var(--font-display)] text-[min(4.4vh,6.6cqw)] leading-[1.08]">
-              {AGE}
+              {age}
             </p>
           </div>
 
@@ -96,14 +92,27 @@ export default function StoryPanel({ diamond, tracrRecord }) {
             <Rule />
             <Label>Temp + depth</Label>
             <p className="whitespace-pre-line font-[family-name:var(--font-display)] text-[min(4.4vh,6.6cqw)] leading-[1.08]">
-              {DEPTH}
+              {depth}
             </p>
           </div>
+
+          {mineName ? (
+            <div className="flex flex-col gap-[0.8vh]">
+              <Rule />
+              <Label>Mine</Label>
+              <p className="font-[family-name:var(--font-display)] text-[min(4.4vh,6.6cqw)] leading-[1.08]">
+                {mineName}
+              </p>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex min-h-0 flex-col gap-[0.8vh]">
           <Rule />
-          <Label>Rough diamond it came from</Label>
+          <Label>
+            Rough diamond it came from
+            {tracrRecord?.roughCarat ? ` · ${tracrRecord.roughCarat}` : ""}
+          </Label>
           <div className="relative min-h-0 flex-1 overflow-hidden bg-[#1d2027]">
             <Image
               src={ROUGH_IMAGE.src}

@@ -259,6 +259,11 @@ export default function DiamondStage({
                 }}
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: detailsOpen ? 0 : 1, y: detailsOpen ? 6 : 0 }}
+                // Hover scale lives here, not in a Tailwind hover:/transition-
+                // transform class: a CSS transition on transform re-smooths
+                // every frame framer-motion writes, so the entrance slide
+                // lagged ~0.5s behind the fade and the button landed late.
+                whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
                 transition={{
                   delay: buttonEntered ? 0 : 2.4,
                   duration: 0.35,
@@ -270,7 +275,7 @@ export default function DiamondStage({
                 aria-hidden={detailsOpen}
                 tabIndex={detailsOpen ? -1 : 0}
                 style={{ pointerEvents: detailsOpen ? "none" : "auto" }}
-                className="mt-2 rounded-full bg-white px-6 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#16150f] shadow-lg shadow-black/30 transition-transform hover:scale-[1.03]"
+                className="mt-2 rounded-full bg-white px-6 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-[#16150f] shadow-lg shadow-black/30"
               >
                 More about this diamond
               </motion.button>
