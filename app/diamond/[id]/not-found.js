@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-[var(--surface)] px-6 text-center text-[var(--ink)]">
-      <p className="text-xs uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+      <p className="text-sm font-medium text-[var(--ink-soft)]">
         Diamond not recognized
       </p>
       <h1 className="font-[family-name:var(--font-display)] text-2xl">

@@ -134,7 +134,7 @@ export default function DiamondStory({ diamond, tracrRecord }) {
                       <p className="font-[family-name:var(--font-display)] text-2xl leading-none text-[var(--ink)]">
                         {stat.value}
                       </p>
-                      <p className="mt-1.5 text-[10.5px] uppercase tracking-[0.1em] leading-snug text-[var(--ink-faint)]">
+                      <p className="mt-1.5 text-xs leading-snug text-[var(--ink-faint)]">
                         {stat.label}
                       </p>
                     </div>
@@ -143,10 +143,10 @@ export default function DiamondStory({ diamond, tracrRecord }) {
               </div>
 
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+                <p className="text-sm font-medium text-[var(--ink)]">
                   It is ancient
                 </p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                <p className="mt-1.5 text-sm leading-relaxed text-[var(--ink-soft)]">
                   {diamond.name} formed in the Earth around {ageBillions}{" "}
                   billion years ago, {depthKm}&nbsp;km underground. It is one
                   of the oldest things you&rsquo;ll ever hold.
@@ -156,7 +156,7 @@ export default function DiamondStory({ diamond, tracrRecord }) {
               {country ? (
                 <div>
                   <div className="mb-5 h-px bg-[var(--hairline)]" />
-                  <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--ink-faint)]">
+                  <p className="text-xs text-[var(--ink-faint)]">
                     Country of origin
                   </p>
                   <p className="mt-1 font-[family-name:var(--font-display)] text-[3.5rem] leading-[0.92] text-[var(--ink)]">
@@ -164,7 +164,7 @@ export default function DiamondStory({ diamond, tracrRecord }) {
                   </p>
                   {mine ? (
                     <>
-                      <p className="mt-4 text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--ink-faint)]">
+                      <p className="mt-4 text-xs text-[var(--ink-faint)]">
                         Mined in
                       </p>
                       <p className="mt-1 font-[family-name:var(--font-display)] text-[2.4rem] leading-none text-[var(--ink)]">
@@ -176,10 +176,10 @@ export default function DiamondStory({ diamond, tracrRecord }) {
               ) : null}
 
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+                <p className="text-sm font-medium text-[var(--ink)]">
                   Where it&rsquo;s from
                 </p>
-                <div className="mt-1.5 space-y-3 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                <div className="mt-1.5 space-y-3 text-sm leading-relaxed text-[var(--ink-soft)]">
                   {[...story.source, ...SHARED_SOURCING].map((paragraph) => (
                     <p key={paragraph}>{paragraph}</p>
                   ))}
@@ -194,10 +194,10 @@ export default function DiamondStory({ diamond, tracrRecord }) {
               </div>
 
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+                <p className="text-sm font-medium text-[var(--ink)]">
                   The rough
                 </p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                <p className="mt-1.5 text-sm leading-relaxed text-[var(--ink-soft)]">
                   A rough diamond is how the diamond comes out of the earth
                   and then is cut and polished to reveal the diamond in
                   front of you.
@@ -222,10 +222,10 @@ export default function DiamondStory({ diamond, tracrRecord }) {
               </div>
 
               <div>
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+                <p className="text-sm font-medium text-[var(--ink)]">
                   The polished stone
                 </p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                <p className="mt-1.5 text-sm leading-relaxed text-[var(--ink-soft)]">
                   {diamond.name} is a {diamond.carat}&nbsp;ct{" "}
                   {diamond.shape.toLowerCase()}, {diamond.color} color,{" "}
                   {diamond.clarity} clarity. {diamond.description} It is a
@@ -247,10 +247,10 @@ export default function DiamondStory({ diamond, tracrRecord }) {
 
               <div>
                 <div className="mb-6 h-px bg-[var(--hairline)]" />
-                <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+                <p className="text-sm font-medium text-[var(--ink)]">
                   Cutting &amp; polishing
                 </p>
-                <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--ink-soft)]">
+                <p className="mt-1.5 text-sm leading-relaxed text-[var(--ink-soft)]">
                   {cutStep ? (
                     <>
                       {diamond.name} was cut and polished in {cutStep.location}

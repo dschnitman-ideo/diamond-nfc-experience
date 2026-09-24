@@ -20,7 +20,7 @@ const ROUGH_IMAGE = {
 
 function Label({ children }) {
   return (
-    <p className="text-[clamp(9px,1.05vh,11px)] font-semibold uppercase tracking-[0.1em] text-[#16150f]">
+    <p className="text-label font-semibold uppercase tracking-caps text-[#16150f]">
       {children}
     </p>
   );

@@ -15,10 +15,10 @@ const EASE = [0.22, 1, 0.36, 1];
 function SpecItem({ label, value }) {
   return (
     <div className="rounded-xl border border-[var(--hairline)] bg-[var(--surface-card)] px-3 py-2.5">
-      <p className="text-[9.5px] font-medium uppercase tracking-[0.13em] text-[var(--ink-faint)]">
+      <p className="text-xs text-[var(--ink-faint)]">
         {label}
       </p>
-      <p className="mt-0.5 truncate font-[family-name:var(--font-display)] text-[15px] leading-tight text-[var(--ink)]">
+      <p className="mt-0.5 truncate font-[family-name:var(--font-display)] text-body leading-tight text-[var(--ink)]">
         {value}
       </p>
     </div>
@@ -33,11 +33,11 @@ function TrustRow({ iconName, label, status, value, sub }) {
           <Icon name={iconName} className="h-3.5 w-3.5" />
         </span>
         <div className="min-w-0">
-          <p className="text-[9.5px] font-medium uppercase tracking-[0.13em] text-[var(--ink-faint)]">
+          <p className="text-xs text-[var(--ink-faint)]">
             {label}
           </p>
-          <p className="mt-0.5 truncate text-[13px] font-medium text-[var(--ink)]">{value}</p>
-          {sub ? <p className="truncate text-[11px] text-[var(--ink-faint)]">{sub}</p> : null}
+          <p className="mt-0.5 truncate text-sm font-medium text-[var(--ink)]">{value}</p>
+          {sub ? <p className="truncate text-xs text-[var(--ink-faint)]">{sub}</p> : null}
         </div>
       </div>
       {status ? <StatusBadge status={status} /> : null}
@@ -101,7 +101,7 @@ function ZoomableStone({ diamondId, giaRecord }) {
         ) : null}
       </button>
 
-      <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-[11px] text-[var(--ink-faint)]">
+      <p className="mt-2 flex items-center justify-center gap-1.5 text-center text-xs text-[var(--ink-faint)]">
         {zoomed ? (
           <>
             <Icon name="trustMark" className="h-3.5 w-3.5 flex-none text-[var(--brass)]" />
@@ -139,7 +139,7 @@ function ComparePanel({ diamondId, diamonds, onChange }) {
           <Icon name="chevronLeft" className="h-4 w-4" />
         </button>
         <div className="min-w-0 text-center">
-          <p className="text-[10px] uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+          <p className="text-xs text-[var(--ink-faint)]">
             Diamond {diamond.id}
           </p>
           <p className="truncate font-[family-name:var(--font-display)] text-base text-[var(--ink)]">
@@ -166,7 +166,7 @@ function ComparePanel({ diamondId, diamonds, onChange }) {
         <SpecItem label="Fluorescence" value={diamond.fluorescence} />
       </div>
 
-      <p className="mb-2 mt-4 text-[10px] font-medium uppercase tracking-[0.13em] text-[var(--ink-faint)]">
+      <p className="mb-2 mt-4 text-sm font-medium text-[var(--ink)]">
         Trust marks
       </p>
       <div className="flex flex-col gap-2 pb-4">

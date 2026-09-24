@@ -19,7 +19,7 @@ function Field({ label, value, size = "hero", className = "" }) {
       : "text-3xl leading-tight";
   return (
     <div className={`border-t border-[var(--hairline-strong)] pt-2.5 ${className}`}>
-      <p className="text-[10px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+      <p className="text-xs text-[var(--ink-faint)]">
         {label}
       </p>
       <p
@@ -62,7 +62,7 @@ export default function DiamondPanel({
         <div className="mx-auto h-1 w-9 rounded-full bg-[var(--hairline-strong)]" />
 
         <div className="mx-auto mt-4 flex w-full max-w-2xl items-center justify-between gap-4 px-7 pb-4">
-          <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--ink-faint)]">
+          <p className="text-sm font-medium text-[var(--ink)]">
             Diamond details
           </p>
           <button
@@ -84,7 +84,7 @@ export default function DiamondPanel({
                   href={reportUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-md border border-[var(--hairline-strong)] px-3.5 py-2 text-[10.5px] font-medium uppercase tracking-[0.1em] text-[var(--ink)] transition-colors hover:bg-[var(--surface-card)]"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-[var(--hairline-strong)] px-3.5 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:bg-[var(--surface-card)]"
                 >
                   View grading report
                   <Icon name="arrowUpRight" className="h-3 w-3" />

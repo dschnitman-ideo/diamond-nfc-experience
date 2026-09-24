@@ -36,6 +36,20 @@
   --font-ui: var(--font-family-ui);
 }
 
+/* ---- type scale ----
+   label  11px  all-caps only (stage stamp, board spec labels, eyebrow)
+   xs     12px  captions, field labels, meta        (Tailwind default)
+   sm     14px  section headings (medium), UI, story body (Tailwind default)
+   body   15px  long-form paragraphs
+   Sentence case everywhere except `label`. */
+@theme {
+  --text-label: 11px;
+  --text-label--line-height: 1.3;
+  --text-body: 15px;
+  --text-body--line-height: 1.6;
+  --tracking-caps: 0.1em;
+}
+
 /* Wrapped in Tailwind's own "base" layer (rather than left unlayered)
    so these resets correctly lose to utility classes like
    text-[var(--brass-ink)] on the same element. An unlayered rule

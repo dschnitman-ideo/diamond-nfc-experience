@@ -17,6 +17,7 @@ const ui = localFont({
   src: [
     { path: "../fonts/GTStandard-Regular.otf", weight: "400", style: "normal" },
     { path: "../fonts/GTStandard-Medium.otf", weight: "500", style: "normal" },
+    { path: "../fonts/GTStandard-Semibold.otf", weight: "600", style: "normal" },
   ],
   variable: "--font-ui",
   display: "swap",

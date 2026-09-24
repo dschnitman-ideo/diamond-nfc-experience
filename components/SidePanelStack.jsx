@@ -99,7 +99,7 @@ function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) 
         style={{ width: RAIL_WIDTH }}
         className="flex h-full flex-none items-center justify-start px-6 text-left"
       >
-        <span className="whitespace-pre-line text-[11px] font-semibold uppercase leading-[1.3] tracking-[0.08em] text-[#16150f]">
+        <span className="whitespace-pre-line text-label font-semibold uppercase tracking-[0.08em] text-[#16150f]">
           {panel.label}
         </span>
       </button>

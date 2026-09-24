@@ -36,7 +36,14 @@ function fireRecognized(setRecognized) {
   vibrate([12, 40, 16]);
 }
 
-export default function DiamondExperience({ diamond, tracrRecord, giaRecord, prev, next }) {
+export default function DiamondExperience({
+  diamond,
+  tracrRecord,
+  giaRecord,
+  prev,
+  next,
+  stageLayout = "centered",
+}) {
   const router = useRouter();
   const wideViewport = useMediaQuery(WIDE_LAYOUT_QUERY);
   const isWide = FORCE_BOTTOM_SHEET ? false : wideViewport;
@@ -171,14 +178,11 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
           // and bottom Trust Mark pill, which already re-center cleanly at
           // any width.
           compact={wideViewport && stackPanelOpen}
+          layout={stageLayout}
         />
 
         <div className="pointer-events-none absolute inset-x-0 top-0 z-20 bg-gradient-to-b from-black/55 via-black/15 to-transparent px-4 pb-12 pt-5 sm:px-6">
           <div className="pointer-events-auto flex items-center gap-3">
-            {/* Equal-width flex-1 side groups (rather than justify-between)
-                so the title lands on the stage's true horizontal center —
-                lining up with DiamondStage's "Inscription found" label —
-                regardless of how wide the two side button groups are. */}
             <div className="flex flex-1 justify-start">
               <button
                 onClick={() => router.back()}
@@ -187,14 +191,6 @@ export default function DiamondExperience({ diamond, tracrRecord, giaRecord, pre
               >
                 <Icon name="chevronLeft" className="h-[18px] w-[18px]" />
               </button>
-            </div>
-            <div className="min-w-0 flex-none text-center">
-              <p className="text-[11px] uppercase tracking-[0.16em] text-[var(--ink-faint)]">
-                Diamond {diamond.id}
-              </p>
-              <p className="mt-0.5 truncate font-[family-name:var(--font-display)] text-base text-[var(--ink)]">
-                {diamond.name}
-              </p>
             </div>
             <div className="flex flex-1 items-center justify-end gap-2">
               <button

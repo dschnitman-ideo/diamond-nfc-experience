@@ -78,7 +78,7 @@ export default function HomeDirectory() {
                 <span className="block text-sm text-[var(--ink-soft)]">Diamond {d.id}</span>
                 <span className="block text-xs text-[var(--ink-faint)]">GIA {d.reportNumber}</span>
               </span>
-              <span className="flex-none text-[10px] font-medium uppercase tracking-[0.12em] text-[var(--ink-faint)]">
+              <span className="flex-none text-xs font-medium text-[var(--ink-faint)]">
                 Pending
               </span>
             </div>

@@ -78,7 +78,7 @@ export default function InscriptionPanel({ collapsed = false, onExpand, onClose 
         style={{ width: SIDE_PANEL_WIDTH }}
         className="flex h-full flex-none flex-col px-9 py-10"
       >
-        <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-black">
+        <p className="text-label font-semibold uppercase tracking-caps text-black">
           About this inscription &amp; symbol
         </p>
         <p className="mt-4 font-[family-name:var(--font-display)] text-2xl leading-snug text-black">
@@ -89,7 +89,7 @@ export default function InscriptionPanel({ collapsed = false, onExpand, onClose 
         <div className="flex-1" />
 
         <DiamondMark className="h-14 w-14 text-black" />
-        <p className="mt-4 text-[15px] leading-relaxed text-black">
+        <p className="mt-4 text-body text-black">
           This symbol means a diamond has been authenticated as natural,
           formed in the earth&rsquo;s mantle, is a one-of-one, ancient, and
           holds value.

@@ -39,7 +39,7 @@ export default function RecognitionOverlay({ diamondName }) {
         transition={{ delay: 0.15, duration: 0.4 }}
         className="text-center"
       >
-        <p className="text-[13px] uppercase tracking-[0.16em] text-[var(--ink-soft)]">
+        <p className="text-sm text-[var(--ink-soft)]">
           Recognizing your diamond
         </p>
         {diamondName ? (

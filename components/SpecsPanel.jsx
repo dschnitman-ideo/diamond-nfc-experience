@@ -28,7 +28,7 @@ function Cell({ label, children, className = "" }) {
   return (
     <div className={`flex min-h-0 flex-col gap-[0.7vh] ${className}`}>
       <div className="h-px w-full bg-[#16150f]/55" />
-      <p className="text-[clamp(9px,1.05vh,11px)] font-semibold uppercase tracking-[0.1em] text-[#16150f]">
+      <p className="text-label font-semibold uppercase tracking-caps text-[#16150f]">
         {label}
       </p>
       {children}
@@ -64,7 +64,7 @@ export default function SpecsPanel({ diamond }) {
       <div className="flex flex-none items-start gap-4">
         <div className="min-w-0 flex-1">
           <div className="h-px w-full bg-[#16150f]/55" />
-          <p className="mt-[0.7vh] text-[clamp(9px,1.05vh,11px)] font-semibold uppercase tracking-[0.1em]">
+          <p className="mt-[0.7vh] text-label font-semibold uppercase tracking-caps">
             About this diamond
           </p>
         </div>
