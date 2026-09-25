@@ -14,16 +14,34 @@ const EASE = [0.22, 1, 0.36, 1];
 // screen is what's live on load, without tapping through first.
 const START_AT_FINAL_LEVEL = true;
 
-/** A single chamfered corner accent — decorative, echoes a hallmark/seal frame. */
-function CornerAccent({ className = "" }) {
+// Full-height chamfered brackets that hug the left/right edges of the
+// authenticated screen — a hallmark/seal frame, like a jeweler's loupe
+// gauge. Traced from the reference design (Frame 6/7). `preserveAspectRatio="none"`
+// lets each stretch to whatever height the stage actually is rather than
+// the SVG's own tall native proportions, and `vectorEffect="non-scaling-stroke"`
+// keeps the line weight even despite that non-uniform stretch.
+const EDGE_BRACKET_PATHS = {
+  left: "M173.23 175.149L173.686 174.854L340.995 66.1123L288.192 1.33105L1 190.507V1329.22L288.192 1518.39L340.995 1453.61L173.686 1344.87L173.23 1344.58V175.149Z",
+  right:
+    "M169.243 1344.58L168.788 1344.87L1.47853 1453.61L54.2813 1518.4L341.474 1329.22L341.474 190.508L54.2815 1.33167L1.47877 66.1129L168.788 174.853L169.243 175.149L169.243 1344.58Z",
+};
+
+function EdgeBracket({ side, className = "" }) {
   return (
     <svg
-      viewBox="0 0 64 64"
+      viewBox="0 0 343 1520"
+      preserveAspectRatio="none"
       fill="none"
       className={`${className} drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]`}
       aria-hidden="true"
     >
-      <path d="M64 0H20L0 20V64" stroke="white" strokeOpacity="0.6" strokeWidth="2" />
+      <path
+        d={EDGE_BRACKET_PATHS[side]}
+        stroke="white"
+        strokeOpacity="0.6"
+        strokeWidth="2"
+        vectorEffect="non-scaling-stroke"
+      />
     </svg>
   );
 }
@@ -298,13 +316,18 @@ export default function DiamondStage({
                   }}
                 />
 
+                {/* Brackets stay put even in `compact` mode (a side panel
+                    open) — they're the stage's own edge decoration, not
+                    something that needs to clear out of the panel's way
+                    the way the side labels below do. The right one just
+                    ends up partly behind the panel, which reads fine
+                    since the panel already sits above it (z-30 to this
+                    frame's z-20). */}
+                <EdgeBracket side="left" className="absolute inset-y-0 left-0 h-full w-28 sm:w-40" />
+                <EdgeBracket side="right" className="absolute inset-y-0 right-0 h-full w-28 sm:w-40" />
+
                 {!compact ? (
                   <>
-                    <CornerAccent className="absolute left-4 top-20 h-12 w-12 sm:left-6" />
-                    <CornerAccent className="absolute right-4 top-20 h-12 w-12 -scale-x-100 sm:right-6" />
-                    <CornerAccent className="absolute bottom-24 left-4 h-12 w-12 -scale-y-100 sm:left-6" />
-                    <CornerAccent className="absolute bottom-24 right-4 h-12 w-12 -scale-x-100 -scale-y-100 sm:right-6" />
-
                     <p className="absolute left-4 top-1/2 -translate-y-1/2 rotate-180 whitespace-nowrap [writing-mode:vertical-rl] text-label uppercase tracking-[0.3em] text-white/80 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)] sm:left-6">
                       Authenticated
                     </p>
