@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { diamondDirectory, PILOT_BATCH_SIZE } from "@/data/diamondDirectory";
 import { Icon } from "@/components/icons";
+import { vibrate } from "@/lib/feedback";
 
 export default function HomeDirectory() {
   const [query, setQuery] = useState("");
@@ -56,7 +57,8 @@ export default function HomeDirectory() {
             <Link
               key={d.id}
               href={`/diamond/${d.id}`}
-              className="flex items-center justify-between rounded-2xl border border-[var(--hairline)] bg-[var(--surface-card)] px-4 py-3.5 transition-colors hover:border-[var(--hairline-strong)]"
+              onClick={() => vibrate(10)}
+              className="flex items-center justify-between rounded-2xl border border-[var(--hairline)] bg-[var(--surface-card)] px-4 py-3.5 transition-[color,border-color,transform] duration-150 hover:border-[var(--hairline-strong)] active:scale-[0.98]"
             >
               <span className="min-w-0">
                 <span className="block font-[family-name:var(--font-display)] text-lg">

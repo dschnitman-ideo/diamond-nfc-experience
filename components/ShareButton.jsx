@@ -3,11 +3,15 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Icon } from "./icons";
+import { vibrate } from "@/lib/feedback";
+
+const EASE = [0.22, 1, 0.36, 1];
 
 export default function ShareButton({ title }) {
   const [copied, setCopied] = useState(false);
 
   async function handleShare() {
+    vibrate(10);
     const url = window.location.href;
     if (navigator.share) {
       try {
@@ -41,6 +45,7 @@ export default function ShareButton({ title }) {
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 4 }}
+            transition={{ duration: 0.25, ease: EASE }}
             className="absolute right-0 top-12 whitespace-nowrap rounded-full border border-[var(--hairline)] bg-[var(--surface-raised)] px-3 py-1.5 text-xs text-[var(--ink)]"
           >
             Link copied

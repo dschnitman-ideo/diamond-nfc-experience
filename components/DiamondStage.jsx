@@ -14,6 +14,122 @@ const EASE = [0.22, 1, 0.36, 1];
 // screen is what's live on load, without tapping through first.
 const START_AT_FINAL_LEVEL = true;
 
+// The typewriter headline types word by word, not the whole two-line
+// block at once, each word's own duration set by its length at a fixed
+// characters-per-second pace — a real typewriter runs at one constant
+// speed, so a short word finishing just as fast as a long one would've
+// read as typed by a machine that ignores what it's actually typing.
+// STAGGER (baked into HEADLINE_TIMINGS below) equals each word's own
+// duration exactly, not less, so one word's caret has fully faded
+// before the next one's fades in — overlapping them left both carets
+// visible at once for a stretch, reading as a stutter rather than one
+// continuous pass. The initial delay is long enough to clear the
+// recognition overlay's own fade (RECOGNITION_MS=800 in
+// DiamondExperience, plus its ~0.4s exit) — these motion values start
+// their own clock at this component's mount, not at whatever point the
+// stage actually becomes visible, so a short delay here reads as
+// "already mid-word" the moment the black screen clears rather than as
+// the start of the type-in. "linear", not the app's usual eased curve:
+// a typewriter's carriage moves at one constant speed, not an
+// eased-out glide.
+const HEADLINE_WORD_DELAY = 1.3;
+const HEADLINE_SECONDS_PER_CHAR = 0.1;
+const HEADLINE_WORDS = ["Authenticated", "natural", "diamond"];
+const HEADLINE_TIMINGS = (() => {
+  let cursor = HEADLINE_WORD_DELAY;
+  return HEADLINE_WORDS.map((text) => {
+    const duration = text.length * HEADLINE_SECONDS_PER_CHAR;
+    const timing = { text, delay: cursor, duration };
+    cursor += duration;
+    return timing;
+  });
+})();
+const HEADLINE_END = (() => {
+  const last = HEADLINE_TIMINGS[HEADLINE_TIMINGS.length - 1];
+  return last.delay + last.duration;
+})();
+
+// Builds the last word's caret opacity as one continuous timeline: fade
+// in, arrive and hold, then a few hard on/off snaps (not a smooth
+// fade/pulse — real cursors toggle instantly) before finally going dark.
+// It's the SAME caret element that moved with the word, extended rather
+// than replaced by a separate element after the fact, so it reads as
+// one effect finishing rather than a new thing appearing once typing
+// is "done".
+function buildFinalCaretBlink(duration) {
+  const SNAP = 0.02; // near-instant on/off transition
+  const HOLD = 0.22; // how long each on/off phase stays put
+  const points = [
+    [0, 0],
+    [duration * 0.12, 1],
+    [duration, 1], // arrived at the last letter, still solid
+  ];
+  let t = duration;
+  let visible = true;
+  for (let i = 0; i < 3; i++) {
+    // An odd toggle count so this always ends OFF — otherwise the
+    // caret's final keyframe value just holds forever (framer motion
+    // keeps whatever the animation last set), leaving a permanently
+    // solid cursor sitting there instead of it actually going away.
+    t += HOLD;
+    points.push([t, visible ? 1 : 0]);
+    t += SNAP;
+    visible = !visible;
+    points.push([t, visible ? 1 : 0]);
+  }
+  const total = t;
+  return {
+    duration: total,
+    times: points.map(([time]) => time / total),
+    values: points.map(([, v]) => v),
+  };
+}
+
+/** One word of the typewriter headline — its own clip-path reveal and
+    trailing caret, so a multi-word headline types word by word instead
+    of the whole block sweeping open in one pass. The caret tracks the
+    reveal edge on the same duration/ease so the two never drift apart
+    or visibly hitch mid-word. `finalCaret` extends that same caret into
+    a few idle blinks once it arrives, instead of fading out right away
+    — see buildFinalCaretBlink. */
+function TypedWord({ text, delay, duration, finalCaret = false }) {
+  const blink = finalCaret ? buildFinalCaretBlink(duration) : null;
+  return (
+    <motion.span
+      initial={{ clipPath: "inset(0 100% 0 0)" }}
+      animate={{ clipPath: "inset(0 -2% 0 0)" }}
+      transition={{ delay, duration, ease: "linear" }}
+      className="relative inline-block whitespace-nowrap"
+    >
+      {text}
+      <motion.span
+        aria-hidden="true"
+        initial={{ left: "0%", opacity: 0 }}
+        // Matches the clip-path's own "-2%" overshoot (not "0%"/"100%")
+        // — the reveal travels a hair past the word's true edge so its
+        // last letter isn't clipped at the antialiased boundary. With
+        // the caret targeting a plain 100%, it covered less distance
+        // than the reveal in the same duration and fell visibly behind
+        // it letter by letter.
+        animate={{ left: "102%", opacity: blink ? blink.values : [0, 1, 1, 0] }}
+        // Per-property sub-transitions (left/opacity below) don't
+        // inherit a bare top-level `delay` — each one needs its own, or
+        // it starts at mount instead of waiting. Without this, the
+        // caret raced to "100%" immediately and just sat there fully
+        // formed by the time the word's own (correctly-delayed)
+        // clip-path reveal actually started, instead of moving with it.
+        transition={{
+          left: { delay, duration, ease: "linear" },
+          opacity: blink
+            ? { delay, duration: blink.duration, times: blink.times, ease: "linear" }
+            : { delay, duration, times: [0, 0.12, 0.8, 1], ease: "easeInOut" },
+        }}
+        className="absolute inset-y-0 w-[3px] -translate-x-full bg-white"
+      />
+    </motion.span>
+  );
+}
+
 // Full-height chamfered brackets that hug the left/right edges of the
 // authenticated screen — a hallmark/seal frame, like a jeweler's loupe
 // gauge. Traced from the reference design (Frame 6/7). `preserveAspectRatio="none"`
@@ -32,14 +148,14 @@ function EdgeBracket({ side, className = "" }) {
       viewBox="0 0 343 1520"
       preserveAspectRatio="none"
       fill="none"
-      className={`${className} drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]`}
+      className={`${className} drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]`}
       aria-hidden="true"
     >
       <path
         d={EDGE_BRACKET_PATHS[side]}
         stroke="white"
-        strokeOpacity="0.6"
-        strokeWidth="2"
+        strokeOpacity="1"
+        strokeWidth="2.5"
         vectorEffect="non-scaling-stroke"
       />
     </svg>
@@ -64,7 +180,6 @@ export default function DiamondStage({
   onFocus,
   onOpenDetails,
   detailsOpen = false,
-  compact = false,
   layout = "centered",
 }) {
   const stages = getStageImages(diamondId);
@@ -110,34 +225,20 @@ export default function DiamondStage({
       couldn't, so the reveal box and the text it was revealing
       disagreed on how wide a line was. */
   const renderHeadline = (className = "") => (
-    <motion.p
-      initial={{ clipPath: "inset(0 100% 0 0)" }}
-      animate={{ clipPath: "inset(0 -2% 0 0)" }}
-      transition={{ delay: 0.55, duration: 1.4, ease: "linear" }}
+    <p
       className={`relative whitespace-nowrap font-[family-name:var(--font-display)] uppercase leading-[1.15] tracking-[0.12em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)] ${className}`}
     >
-      Authenticated
+      <TypedWord {...HEADLINE_TIMINGS[0]} />
       <br />
-      natural diamond
-      <motion.span
-        aria-hidden="true"
-        initial={{ left: "0%", opacity: 0 }}
-        animate={{ left: ["0%", "100%", "100%"], opacity: [1, 1, 1, 0] }}
-        transition={{
-          delay: 0.55,
-          duration: 1.87,
-          times: [0, 0.75, 0.75, 1],
-          ease: "linear",
-        }}
-        className="absolute inset-y-0 w-[3px] -translate-x-full bg-white"
-      />
-    </motion.p>
+      <TypedWord {...HEADLINE_TIMINGS[1]} />{" "}
+      <TypedWord {...HEADLINE_TIMINGS[2]} finalCaret />
+    </p>
   );
 
   const idReveal = {
     initial: { opacity: 0, y: 6 },
     animate: { opacity: 1, y: 0 },
-    transition: { delay: 1.9, duration: 0.4, ease: EASE },
+    transition: { delay: HEADLINE_END + 0.1, duration: 0.4, ease: EASE },
   };
 
   /* Always mounted — toggling it in and out of the tree via
@@ -167,7 +268,7 @@ export default function DiamondStage({
       // lagged ~0.5s behind the fade and the button landed late.
       whileHover={{ scale: 1.03, transition: { duration: 0.15 } }}
       transition={{
-        delay: buttonEntered ? 0 : 2.4,
+        delay: buttonEntered ? 0 : HEADLINE_END + 0.6,
         duration: 0.35,
         ease: EASE,
       }}
@@ -177,7 +278,7 @@ export default function DiamondStage({
       aria-hidden={detailsOpen}
       tabIndex={detailsOpen ? -1 : 0}
       style={{ pointerEvents: detailsOpen ? "none" : "auto" }}
-      className={`max-w-[85cqw] cursor-pointer rounded-full bg-white px-8 py-2.5 text-[17px] font-medium tracking-[-0.01em] text-[#16150f] ${className}`}
+      className={`max-w-[85cqw] cursor-pointer rounded-full bg-white px-9 py-3 text-[18px] font-medium tracking-[-0.01em] text-[#16150f] ${className}`}
     >
       More about this diamond
     </motion.button>
@@ -251,6 +352,41 @@ export default function DiamondStage({
             transition={{ duration: 0.4, ease: EASE }}
             className="pointer-events-none absolute inset-0 z-20"
           >
+            {/* A dedicated dark backdrop behind the brackets/labels,
+                independent of either layout's own vignette (the radial
+                one only darkens toward the center layout's own edges;
+                editorial's bottom-up scrim doesn't reach the top at
+                all) — white-on-white against a bright facet was
+                unreadable without it. */}
+            <div className="absolute inset-y-0 left-0 h-full w-28 bg-gradient-to-r from-black/70 to-transparent sm:w-40" />
+            <div className="absolute inset-y-0 right-0 h-full w-28 bg-gradient-to-l from-black/70 to-transparent sm:w-40" />
+
+            {/* Brackets and side labels frame the stone the same way
+                regardless of which stage layout is active below — they're
+                the stage's own edge decoration, not part of either
+                layout's own confirmation content. Stay put even with a
+                side panel open: the right ones just end up partly behind
+                it, which reads fine since the panel already sits above
+                them (z-30 to this frame's z-20). */}
+            <EdgeBracket side="left" className="absolute inset-y-0 left-0 h-full w-28 sm:w-40" />
+            <EdgeBracket side="right" className="absolute inset-y-0 right-0 h-full w-28 sm:w-40" />
+
+            {/* Flex-centered in the margin BEFORE the bracket's ribbon
+                line — half its w-28/sm:w-40 footprint (w-14/sm:w-20),
+                anchored at the true edge — rather than the full width,
+                which centers the text ON that line (it sits at very
+                nearly 50% of the box) instead of clear of it. */}
+            <div className="absolute inset-y-0 left-0 flex h-full w-14 items-center justify-center sm:w-20">
+              <p className="rotate-180 whitespace-nowrap [writing-mode:vertical-rl] text-label uppercase tracking-[0.3em] text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]">
+                Authenticated
+              </p>
+            </div>
+            <div className="absolute inset-y-0 right-0 flex h-full w-14 items-center justify-center sm:w-20">
+              <p className="whitespace-nowrap [writing-mode:vertical-rl] text-label uppercase tracking-[0.3em] text-white drop-shadow-[0_1px_4px_rgba(0,0,0,0.95)]">
+                Authenticated
+              </p>
+            </div>
+
             {layout === "editorial" ? (
               <>
                 {/* Editorial layout: a left-aligned block anchored bottom-left,
@@ -316,27 +452,6 @@ export default function DiamondStage({
                   }}
                 />
 
-                {/* Brackets stay put even in `compact` mode (a side panel
-                    open) — they're the stage's own edge decoration, not
-                    something that needs to clear out of the panel's way
-                    the way the side labels below do. The right one just
-                    ends up partly behind the panel, which reads fine
-                    since the panel already sits above it (z-30 to this
-                    frame's z-20). */}
-                <EdgeBracket side="left" className="absolute inset-y-0 left-0 h-full w-28 sm:w-40" />
-                <EdgeBracket side="right" className="absolute inset-y-0 right-0 h-full w-28 sm:w-40" />
-
-                {!compact ? (
-                  <>
-                    <p className="absolute left-4 top-1/2 -translate-y-1/2 rotate-180 whitespace-nowrap [writing-mode:vertical-rl] text-label uppercase tracking-[0.3em] text-white/80 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)] sm:left-6">
-                      Authenticated
-                    </p>
-                    <p className="absolute right-4 top-1/2 -translate-y-1/2 whitespace-nowrap [writing-mode:vertical-rl] text-label uppercase tracking-[0.3em] text-white/80 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)] sm:right-6">
-                      Authenticated
-                    </p>
-                  </>
-                ) : null}
-
                 {/* Centered on this stage's own box, which is exactly the
                     visible grey/photo area — DiamondExperience narrows that
                     box's width (its animated `right`) as a side panel opens,
@@ -363,32 +478,32 @@ export default function DiamondStage({
                         "radial-gradient(closest-side, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0) 100%)",
                     }}
                   />
-                  <DiamondMark className="h-14 w-14 text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]" />
+                  <DiamondMark className="h-16 w-16 text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]" />
 
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.3, duration: 0.3, ease: EASE }}
-                    className="mt-7 text-center text-sm font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]"
+                    className="mt-7 text-center text-base font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]"
                   >
                     Confirmed
                   </motion.p>
 
-                  {renderHeadline("mt-3 text-center text-[clamp(18px,6cqw,37px)]")}
+                  {renderHeadline("mt-3 text-center text-[clamp(20px,6.6cqw,41px)]")}
 
                   <motion.div
                     {...idReveal}
-                    className="mt-5 flex flex-col items-center gap-1 text-center"
+                    className="mt-6 flex flex-col items-center gap-1.5 text-center"
                   >
-                    <p className="text-sm font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
+                    <p className="text-base font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
                       Unique identification
                     </p>
-                    <p className="truncate text-[clamp(18px,5cqw,27px)] tracking-[0.02em] text-white drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
+                    <p className="truncate text-[clamp(20px,5.6cqw,30px)] tracking-[0.02em] text-white drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
                       GIA {inscriptionNumber}
                     </p>
                   </motion.div>
 
-                  {renderDetailsButton("mt-5 w-[440px]")}
+                  {renderDetailsButton("mt-6 w-[480px]")}
                 </motion.div>
               </>
             )}

@@ -6,9 +6,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import RecognitionOverlay from "./RecognitionOverlay";
 import LightSweep from "./LightSweep";
 import DiamondStage from "./DiamondStage";
-import DetailsSheet, { WIDE_LAYOUT_QUERY, SIDE_PANEL_WIDTH, FORCE_BOTTOM_SHEET } from "./DetailsSheet";
 import SidePanelStack, {
   RAIL_WIDTH,
+  SIDE_PANEL_WIDTH,
   STACK_RAIL_TOTAL,
   OPEN_PANEL_BUFFER,
   getOpenBoardWidth,
@@ -19,7 +19,7 @@ import PrototypeControls from "./PrototypeControls";
 import { Icon } from "./icons";
 import { diamonds as allDiamonds } from "@/data/diamonds";
 import { playRecognitionChime, vibrate } from "@/lib/feedback";
-import { useMediaQuery, useViewportWidth } from "@/lib/useMediaQuery";
+import { useViewportWidth } from "@/lib/useMediaQuery";
 
 const RECOGNITION_MS = 800;
 
@@ -40,21 +40,18 @@ export default function DiamondExperience({
   diamond,
   tracrRecord,
   giaRecord,
-  prev,
-  next,
   stageLayout = "centered",
 }) {
   const router = useRouter();
-  const wideViewport = useMediaQuery(WIDE_LAYOUT_QUERY);
-  const isWide = FORCE_BOTTOM_SHEET ? false : wideViewport;
   const viewportWidth = useViewportWidth();
   const [recognized, setRecognized] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
   const [stackPanelOpen, setStackPanelOpen] = useState(false);
   // The side stack (About/4Cs rails plus the inscription panel) stays
-  // fully hidden on wide viewports until the viewer explicitly asks for
-  // more — DiamondStage's "More about this diamond" button — rather than
-  // appearing on its own the moment the stone is authenticated.
+  // fully hidden until the viewer explicitly asks for more — DiamondStage's
+  // "More about this diamond" button — rather than appearing on its own
+  // the moment the stone is authenticated. It's the one details surface
+  // the app has (targeting iPad/browser widths) — no separate mobile
+  // bottom-sheet fallback.
   const [detailsRevealed, setDetailsRevealed] = useState(false);
   const [compareOpen, setCompareOpen] = useState(false);
   // Always default to 001/002 — the two stones with their own real
@@ -77,7 +74,6 @@ export default function DiamondExperience({
 
   function replayRecognition() {
     setRecognized(false);
-    setSheetOpen(false);
     setStackPanelOpen(false); // SidePanelStack unmounts below without a chance to report itself closed
     setDetailsRevealed(false);
     setSweep(false); // so the light glimmer is ready to fire again on the next first tap
@@ -90,29 +86,10 @@ export default function DiamondExperience({
     replayRecognition();
   }
 
-  function openDetails() {
-    setSheetOpen(true);
-  }
-
-  // DiamondStage's "More about this diamond" button. On a wide viewport
-  // this reveals the side stack (it renders closed — a rail, not an open
-  // board — same as the old always-on version did); on a narrow one there
-  // is no side stack, so open the bottom sheet instead, same as the
-  // existing "Diamond Details" CTA. Checks the real wideViewport, not
-  // isWide/FORCE_BOTTOM_SHEET — that flag only forces DetailsSheet's own
-  // bottom-sheet presentation for testing, it doesn't mean there's no
-  // room for the side stack.
+  // DiamondStage's "More about this diamond" button — reveals the side
+  // stack (it renders closed, a rail rather than an open board).
   function handleOpenDetails() {
-    if (wideViewport) {
-      setDetailsRevealed(true);
-    } else {
-      setSheetOpen(true);
-    }
-  }
-
-  function navigateTo(id) {
-    setSheetOpen(false);
-    router.push(`/diamond/${id}`);
+    setDetailsRevealed(true);
   }
 
   return (
@@ -129,17 +106,17 @@ export default function DiamondExperience({
         className="absolute inset-0"
         animate={{
           opacity: recognized ? 1 : 0,
-          // On wide viewports the stage stops short of the whole
-          // right-hand stack — the olive inscription panel plus the two
-          // closed rails beside it — so nothing in the photo sits
-          // permanently hidden behind them. When a rail opens its board,
-          // the stack grows further left over the stage without the
-          // stage itself pulling back to match, so the stone's visible
-          // edge lands flush against the open panel with no breathing
-          // room — pull back further here by that board's width plus a
-          // fixed buffer to fix that. Capped by MIN_STAGE_WIDTH so that
-          // reservation never eats so much of a moderate-width window
-          // that the stone is squeezed to an unreadable sliver.
+          // The stage stops short of the whole right-hand stack — the
+          // olive inscription panel plus the two closed rails beside it
+          // — so nothing in the photo sits permanently hidden behind
+          // them. When a rail opens its board, the stack grows further
+          // left over the stage without the stage itself pulling back to
+          // match, so the stone's visible edge lands flush against the
+          // open panel with no breathing room — pull back further here
+          // by that board's width plus a fixed buffer to fix that.
+          // Capped by MIN_STAGE_WIDTH so that reservation never eats so
+          // much of a moderate-width window that the stone is squeezed
+          // to an unreadable sliver.
           //
           // The inscription panel collapses to a bare rail (see
           // InscriptionPanel's `collapsed` prop) whenever a board opens,
@@ -151,13 +128,12 @@ export default function DiamondExperience({
           // longer actually occupies, leaving a gap between the photo
           // and the (now narrower) stack.
           right: Math.min(
-            (wideViewport && detailsRevealed ? SIDE_PANEL_WIDTH + STACK_RAIL_TOTAL : 0) +
-              (wideViewport && detailsRevealed && stackPanelOpen
+            (detailsRevealed ? SIDE_PANEL_WIDTH + STACK_RAIL_TOTAL : 0) +
+              (detailsRevealed && stackPanelOpen
                 ? getOpenBoardWidth(viewportWidth) +
                   OPEN_PANEL_BUFFER -
                   (SIDE_PANEL_WIDTH - RAIL_WIDTH)
-                : 0) +
-              (sheetOpen && isWide ? SIDE_PANEL_WIDTH : 0),
+                : 0),
             viewportWidth > 0 ? Math.max(0, viewportWidth - MIN_STAGE_WIDTH) : Infinity
           ),
         }}
@@ -173,15 +149,7 @@ export default function DiamondExperience({
           inscriptionNumber={giaRecord?.reportNumber}
           onFocus={() => setSweep(true)}
           onOpenDetails={handleOpenDetails}
-          detailsOpen={wideViewport ? detailsRevealed : sheetOpen}
-          // The corner accents and rotated "Authenticated" edge labels are
-          // sized for a near-full-width stage. An open side board narrows
-          // the visible stage well past that, so those edge labels close
-          // in on the centered headline instead of framing it — drop the
-          // ornamental edge chrome and keep just the centered confirmation
-          // and bottom Trust Mark pill, which already re-center cleanly at
-          // any width.
-          compact={wideViewport && stackPanelOpen}
+          detailsOpen={detailsRevealed}
           layout={stageLayout}
         />
 
@@ -208,23 +176,10 @@ export default function DiamondExperience({
             </div>
           </div>
         </div>
-
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-20 bg-gradient-to-t from-black/60 via-black/15 to-transparent px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-12 sm:px-6"
-          hidden={wideViewport}
-        >
-          <button
-            onClick={() => setSheetOpen(true)}
-            className="pointer-events-auto mx-auto flex items-center gap-2 rounded-full border border-white/15 bg-[var(--surface-card)]/90 px-5 py-3 text-sm font-medium text-[var(--ink)] backdrop-blur transition-colors hover:border-white/30"
-          >
-            Diamond Details
-            <Icon name="plus" className="h-4 w-4 text-[var(--ink-soft)]" />
-          </button>
-        </div>
       </motion.div>
 
       <AnimatePresence>
-        {recognized && wideViewport && detailsRevealed ? (
+        {recognized && detailsRevealed ? (
           <SidePanelStack
             key="side-panels"
             diamond={diamond}
@@ -234,17 +189,6 @@ export default function DiamondExperience({
           />
         ) : null}
       </AnimatePresence>
-
-      <DetailsSheet
-        open={sheetOpen}
-        diamond={diamond}
-        tracrRecord={tracrRecord}
-        giaRecord={giaRecord}
-        onClose={() => setSheetOpen(false)}
-        prev={prev}
-        next={next}
-        onNavigate={navigateTo}
-      />
 
       <CompareView
         open={compareOpen}
@@ -258,7 +202,7 @@ export default function DiamondExperience({
 
       <PrototypeControls
         currentId={diamond.id}
-        onOpenDetails={openDetails}
+        onOpenDetails={handleOpenDetails}
         onReplay={replayRecognition}
         onReset={resetExperience}
       />

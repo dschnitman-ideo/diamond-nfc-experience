@@ -5,6 +5,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import DiamondMark from "./DiamondMark";
 
 const SPLASH_MS = 1100;
+// Matches RecognitionOverlay's own pulse — the two play back-to-back on
+// load (splash, then recognition), so a mismatched rhythm here would be
+// a visible speed change mid-sequence.
+const PULSE_DURATION = 2.1;
 
 /**
  * The very first thing a viewer sees on entering the diamond
@@ -39,7 +43,7 @@ export default function LoadingSplash() {
           >
             <motion.div
               animate={{ opacity: [0.35, 0.85, 0.35] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: PULSE_DURATION, repeat: Infinity, ease: "easeInOut" }}
               className="absolute h-28 w-28 rounded-full blur-2xl"
               style={{
                 background: "radial-gradient(circle, var(--brass-soft) 0%, transparent 70%)",
@@ -47,7 +51,7 @@ export default function LoadingSplash() {
             />
             <motion.div
               animate={{ opacity: [1, 0.7, 1] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              transition={{ duration: PULSE_DURATION, repeat: Infinity, ease: "easeInOut" }}
             >
               <DiamondMark className="relative h-16 text-[var(--ink)]" />
             </motion.div>

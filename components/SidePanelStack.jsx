@@ -13,15 +13,19 @@ import { playPanelOpenSound, playPanelCloseSound, vibrate } from "@/lib/feedback
  * each is a labelled rail — a spine of the panel underneath the photo's
  * right edge; tapped, it slides its board out over the stage.
  *
- * This replaces the "Diamond Details" bottom sheet on wide viewports:
- * the same content (the story, the 4Cs) split into two boards that each
- * fit their panel exactly, rather than one long scroll. Only one opens
- * at a time — two open boards plus the inscription panel would not fit
- * side by side at iPad-landscape width, and an accordion keeps the
- * stone at least partly visible whichever board is out.
+ * This is the one "diamond details" surface the app has — the story
+ * and the 4Cs split into two boards that each fit their panel exactly,
+ * rather than one long scroll. Only one opens at a time — two open
+ * boards plus the inscription panel would not fit side by side at
+ * iPad-landscape width, and an accordion keeps the stone at least
+ * partly visible whichever board is out. The experience targets
+ * iPad/browser widths, not phones, so there's deliberately no separate
+ * narrower fallback presentation.
  */
 
 export const RAIL_WIDTH = 104;
+// The permanently-docked inscription panel's own width (InscriptionPanel.jsx).
+export const SIDE_PANEL_WIDTH = 440;
 export const CARD_RADIUS = 28;
 // Every card rounds its own left corners — a fanned deck, not a single
 // rounded rectangle sliced into thirds. Each card (after the first)

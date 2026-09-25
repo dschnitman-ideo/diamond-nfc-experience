@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import DiamondMark from "./DiamondMark";
-import { SIDE_PANEL_WIDTH } from "./DetailsSheet";
-import { CARD_OVERLAP, RAIL_WIDTH } from "./SidePanelStack";
+import { CARD_OVERLAP, RAIL_WIDTH, SIDE_PANEL_WIDTH } from "./SidePanelStack";
 
 /**
  * The wide-viewport companion to the stone view — the rightmost board

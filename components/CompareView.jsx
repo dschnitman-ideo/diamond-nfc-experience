@@ -124,6 +124,7 @@ function ComparePanel({ diamondId, diamonds, onChange }) {
   const giaRecord = getGiaRecord(diamond.id);
 
   function step(dir) {
+    vibrate(10);
     const nextIndex = (index + dir + diamonds.length) % diamonds.length;
     onChange(diamonds[nextIndex].id);
   }
@@ -203,10 +204,10 @@ export default function CompareView({ open, onClose, diamonds, leftId, rightId, 
           role="dialog"
           aria-modal="true"
           aria-label="Compare diamonds"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={{ duration: 0.3, ease: EASE }}
           className="fixed inset-0 z-[60] flex flex-col bg-[var(--surface)]"
         >
           <div className="flex flex-none items-center justify-between border-b border-[var(--hairline)] px-4 py-4 sm:px-6">
