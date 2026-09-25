@@ -37,12 +37,6 @@ export default function InscriptionPanel({ collapsed = false, onExpand, onClose 
     <motion.div
       initial={{ opacity: 0, x: 24 }}
       animate={{ opacity: 1, x: 0, width: collapsed ? RAIL_WIDTH : SIDE_PANEL_WIDTH }}
-      // A fast override so the whole stack's exit (the X button, from
-      // DiamondExperience) is quick and matches the other two panels'
-      // own fast exit — the slower 0.5s below is for the entrance and for
-      // width changes while everything stays mounted (collapsing for an
-      // open board), not for leaving the screen altogether.
-      exit={{ opacity: 0, x: 24, transition: { duration: 0.18 } }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       style={{ marginLeft: -CARD_OVERLAP, borderRadius: "28px 0 0 28px" }}
       className="pointer-events-auto relative flex h-full flex-none flex-col overflow-hidden bg-[#838557] shadow-[-18px_0_40px_rgba(0,0,0,0.3)]"

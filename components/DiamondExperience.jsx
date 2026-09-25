@@ -161,7 +161,11 @@ export default function DiamondExperience({
             viewportWidth > 0 ? Math.max(0, viewportWidth - MIN_STAGE_WIDTH) : Infinity
           ),
         }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        // Closing the whole stack (its X) slides it off to the right in
+        // 0.42s (SidePanelStack's exit); widening back on that same timing
+        // keeps the photo's edge following the stack out, rather than
+        // leaving a dark strip where it had been.
+        transition={{ duration: detailsRevealed ? 0.6 : 0.42, ease: [0.22, 1, 0.36, 1] }}
       >
         <DiamondStage
           key={stageKey}

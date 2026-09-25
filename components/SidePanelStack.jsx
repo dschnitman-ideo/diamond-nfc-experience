@@ -74,16 +74,6 @@ function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) 
     <motion.section
       initial={false}
       animate={{ width: open ? `calc(${RAIL_WIDTH}px + ${BOARD_WIDTH})` : RAIL_WIDTH }}
-      // Without its own `exit`, this rail had nothing telling
-      // AnimatePresence how to leave — so when the whole stack unmounts
-      // (the X button), it just sat frozen on screen at full opacity for
-      // however long it took the *other* panel that does have an exit
-      // (InscriptionPanel, 0.5s) to finish animating, since a removed
-      // subtree stays mounted until every descendant's own exit
-      // transition completes. Fast fade of its own means every panel
-      // actually leaves together, quickly, instead of one dragging the
-      // rest out by staying visible while it finishes.
-      exit={{ opacity: 0, transition: { duration: 0.18 } }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       style={{
         backgroundColor: panel.surface,
@@ -151,7 +141,12 @@ export default function SidePanelStack({ diamond, tracrRecord, onOpenChange, onC
   }
 
   return (
-    <div
+    // Closing slides the whole stack off to the right as one solid piece
+    // (no fade — a fading stack ghosts over the photo), on the same
+    // duration and easing as the stage widening back underneath it
+    // (DiamondExperience), so the photo's edge follows the stack out.
+    <motion.div
+      exit={{ x: "100%", transition: { duration: 0.42, ease: [0.22, 1, 0.36, 1] } }}
       className="pointer-events-none fixed inset-y-0 right-0 z-30 flex items-stretch justify-end"
     >
       <CollapsiblePanel
@@ -178,6 +173,6 @@ export default function SidePanelStack({ diamond, tracrRecord, onOpenChange, onC
         }}
         onClose={onClose}
       />
-    </div>
+    </motion.div>
   );
 }
