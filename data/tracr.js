@@ -60,6 +60,19 @@ export const tracrRecords = {
       { stage: "Certified", location: "GIA, New York", date: "2024-08-02" },
     ],
   },
+  "005": {
+    tracrId: "TRACR-MOCK-92318-NA",
+    status: "Verified",
+    origin: "Venetia Mine, South Africa",
+    roughCarat: "3.41 ct",
+    custodyChain: [
+      { stage: "Mined", location: "Venetia Mine, Limpopo, South Africa", date: "2024-01-09" },
+      { stage: "Sorted & Graded", location: "Johannesburg, South Africa", date: "2024-02-20" },
+      { stage: "Cut & Polished", location: "Surat, India", date: "2024-05-30" },
+      { stage: "Certified", location: "GIA, New York", date: "2024-08-19" },
+      { stage: "Delivered to Retailer", location: "New York, NY", date: "2024-09-10" },
+    ],
+  },
 };
 
 export function getTracrRecord(id) {

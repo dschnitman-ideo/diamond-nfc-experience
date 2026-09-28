@@ -312,12 +312,32 @@ export default function DiamondStage({
               exit={{ opacity: 0, scale: 0.97 }}
               transition={{ duration: 0.6, ease: EASE }}
             >
+              {/* The real photography is a fixed, wide (1920x1010),
+                  straight-on shot — the inscription band runs most of
+                  that width. object-cover crops to fill any aspect
+                  ratio, but on a narrow/portrait viewport it has to zoom
+                  in enough that the inscription's own edges fall
+                  outside the crop. object-contain guarantees the whole
+                  shot — inscription included — is always fully visible,
+                  whatever the viewport shape; the blurred cover copy
+                  behind it fills what would otherwise be flat dead
+                  space on the sides/top so that never reads as broken
+                  letterboxing, just a soft-focus backdrop. */}
+              <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+                <Image
+                  src={stage.src}
+                  alt=""
+                  fill
+                  sizes="100vw"
+                  className="scale-110 object-cover opacity-70 blur-2xl"
+                />
+              </div>
               <Image
                 src={stage.src}
                 alt={stage.alt}
                 fill
                 sizes="100vw"
-                className="object-cover"
+                className="object-contain"
                 priority={level === 0}
               />
             </motion.div>

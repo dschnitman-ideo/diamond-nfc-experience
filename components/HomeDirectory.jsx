@@ -6,6 +6,24 @@ import { diamondDirectory, PILOT_BATCH_SIZE } from "@/data/diamondDirectory";
 import { Icon } from "@/components/icons";
 import { vibrate } from "@/lib/feedback";
 
+// A custom stroke-based chevron rather than Phosphor's own — its weight
+// ladder tops out at "bold" for a true outline (the next step up,
+// "fill", is a solid arrowhead, not a thicker one), so getting an
+// outline heavier than that means drawing the stroke ourselves.
+function ChevronRight({ className = "" }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <path
+        d="M9 6l6 6-6 6"
+        stroke="currentColor"
+        strokeWidth="2.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 export default function HomeDirectory() {
   const [query, setQuery] = useState("");
 
@@ -68,7 +86,7 @@ export default function HomeDirectory() {
                   {d.shape} · {d.carat.toFixed(2)} ct
                 </span>
               </span>
-              <Icon name="chevronRight" className="h-5 w-5 flex-none text-[var(--ink-faint)]" />
+              <ChevronRight className="h-5 w-5 flex-none text-[var(--ink-faint)]" />
             </Link>
           ) : (
             <div

@@ -8,7 +8,7 @@ import { diamonds } from "./diamonds";
  * placeholder row — a report number with no experience behind it yet
  * — until that data arrives per the pilot's operational flow.
  */
-export const PILOT_BATCH_SIZE = 250;
+export const PILOT_BATCH_SIZE = 90;
 
 function placeholderReportNumber(index) {
   // Deterministic and distinct per row — not a real GIA report number,

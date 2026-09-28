@@ -36,6 +36,22 @@ function Cell({ label, children, className = "" }) {
   );
 }
 
+// A touch lighter than the panel's own khaki surface (#c3c6b6) — visible
+// as its own shape against the panel rather than blending flat into it,
+// without introducing a new, unrelated color to the sheet.
+const PILL_BG = "#d8dbcf";
+
+function CharacteristicPill({ children }) {
+  return (
+    <span
+      className="rounded-full px-[0.85vw] pb-[0.45vh] pt-[0.35vh] text-[clamp(9px,1.05vh,11px)] font-medium leading-none text-[#16150f]"
+      style={{ backgroundColor: PILL_BG }}
+    >
+      {children}
+    </span>
+  );
+}
+
 function Value({ children }) {
   const length = typeof children === "string" ? children.length : 0;
   // Sized against the whole board's width (14cqw), not the grid column
@@ -60,16 +76,17 @@ export default function SpecsPanel({ diamond }) {
     // See StoryPanel's identical comment: the extra 28px on the right
     // compensates for the inscription panel's overlap eating into this
     // board's own padding when it's open.
-    <div className="flex h-full flex-col gap-[2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#16150f]">
-      <div className="flex flex-none items-start gap-4">
-        <div className="min-w-0 flex-1">
-          <div className="h-px w-full bg-[#16150f]/55" />
-          <p className="mt-[0.7vh] text-label font-semibold uppercase tracking-caps">
-            About this diamond
-          </p>
-        </div>
-        <DiamondMark className="h-[clamp(20px,2.6vh,30px)] w-[clamp(20px,2.6vh,30px)] flex-none text-[#16150f]" />
+    <div className="relative flex h-full flex-col gap-[2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#16150f]">
+      <div className="flex-none">
+        <div className="h-px w-full bg-[#16150f]/55" />
+        <p className="mt-[0.7vh] text-label font-semibold uppercase tracking-caps">4Cs</p>
       </div>
+
+      {/* The mark moves to the bottom corner (echoing the reference
+          hallmark layout) instead of sitting inline with the title —
+          the title's own rule now runs the panel's full width instead
+          of sharing the row with the icon. */}
+      <DiamondMark className="absolute bottom-[clamp(18px,3vh,34px)] right-[calc(clamp(20px,2.6vw,38px)+28px)] h-[clamp(30px,4vh,46px)] w-[clamp(30px,4vh,46px)] text-[#16150f]" />
 
       <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-3 gap-x-[clamp(16px,2.4vw,40px)] gap-y-[2vh]">
         <Cell label="Carat">
@@ -85,7 +102,16 @@ export default function SpecsPanel({ diamond }) {
           <Value>{diamond.clarity}</Value>
         </Cell>
         <Cell label="Inclusions">
-          <BrilliantPlot className="mt-[0.6vh] h-full max-h-[22vh] w-auto self-start text-[#16150f]" />
+          <div className="flex min-h-0 flex-1 flex-col gap-[1vh]">
+            <BrilliantPlot className="mt-[0.6vh] h-full max-h-[16vh] w-auto self-start text-[#16150f]" />
+            {diamond.clarityCharacteristics?.length ? (
+              <div className="flex flex-wrap gap-[0.6vh_0.5vw]">
+                {diamond.clarityCharacteristics.map((c) => (
+                  <CharacteristicPill key={c}>{c}</CharacteristicPill>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </Cell>
         <Cell label="Cut">
           <Value>{CUT_ABBR[diamond.cut] ?? diamond.cut}</Value>

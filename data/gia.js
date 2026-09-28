@@ -33,6 +33,12 @@ export const giaRecords = {
     reportDate: "2024-08-02",
     reportUrl: "/gia/sample-report.pdf",
   },
+  "005": {
+    reportNumber: "8892047163",
+    status: "Verified",
+    reportDate: "2024-08-19",
+    reportUrl: "/gia/sample-report.pdf",
+  },
 };
 
 export function getGiaRecord(id) {

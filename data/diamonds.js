@@ -17,6 +17,7 @@ export const diamonds = [
     cut: "Excellent",
     color: "F",
     clarity: "VS1",
+    clarityCharacteristics: ["Feather", "Crystal"],
     polish: "Excellent",
     symmetry: "Excellent",
     fluorescence: "None",
@@ -33,6 +34,7 @@ export const diamonds = [
     cut: "Very Good",
     color: "G",
     clarity: "VVS2",
+    clarityCharacteristics: ["Pinpoint"],
     polish: "Excellent",
     symmetry: "Very Good",
     fluorescence: "Faint",
@@ -49,6 +51,11 @@ export const diamonds = [
     cut: "Excellent",
     color: "D",
     clarity: "IF",
+    // Internally Flawless means no inclusions at all — the one
+    // characteristic on file is a surface Natural (a remnant patch of
+    // the original rough left on the girdle), which doesn't affect the
+    // IF grade since it isn't an inclusion.
+    clarityCharacteristics: ["Natural"],
     polish: "Excellent",
     symmetry: "Excellent",
     fluorescence: "None",
@@ -65,6 +72,7 @@ export const diamonds = [
     cut: "Very Good",
     color: "H",
     clarity: "VS2",
+    clarityCharacteristics: ["Feather", "Needle"],
     polish: "Very Good",
     symmetry: "Very Good",
     fluorescence: "None",
@@ -72,6 +80,23 @@ export const diamonds = [
     tableDepth: "Table 60% · Depth 64.8%",
     description:
       "A cushion cut with rounded corners and a soft, pillowy brilliance. Its warmer color grade gives the stone a gentle, candlelit glow.",
+  },
+  {
+    id: "005",
+    name: "The Ember",
+    shape: "Radiant Cut",
+    carat: 1.68,
+    cut: "Excellent",
+    color: "E",
+    clarity: "VS1",
+    clarityCharacteristics: ["Crystal", "Feather"],
+    polish: "Excellent",
+    symmetry: "Excellent",
+    fluorescence: "None",
+    measurements: "7.42 × 6.18 × 4.29 mm",
+    tableDepth: "Table 66% · Depth 65.2%",
+    description:
+      "A radiant cut that trades the brilliant's round scatter for crisp, angular flashes of light. Its cropped corners and near-colorless grade give it a bold, architectural presence on the hand.",
   },
 ];
 

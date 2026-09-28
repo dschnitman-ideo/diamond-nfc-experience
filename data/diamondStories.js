@@ -38,6 +38,13 @@ export const diamondStories = {
       "Its diamonds formed beneath the Slave Craton, some of the oldest continental crust on Earth.",
     ],
   },
+  "005": {
+    formation: { ageBillions: "3.1", depthKm: "190", tempC: "1,280", pressureAtm: "58,000" },
+    source: [
+      "This diamond comes from Venetia, De Beers’ largest diamond mine by production, in South Africa’s Limpopo province.",
+      "Venetia's diamonds formed within the Kaapvaal Craton, one of the few surviving fragments of Earth's earliest continental crust.",
+    ],
+  },
 };
 
 // Every stone in the mock set is sourced to these same standards, so
