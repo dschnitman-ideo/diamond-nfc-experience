@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import InscriptionPanel from "./InscriptionPanel";
 import StoryPanel from "./StoryPanel";
@@ -15,10 +15,11 @@ import { playPanelOpenSound, playPanelCloseSound, vibrate } from "@/lib/feedback
  *
  * This is the one "diamond details" surface the app has — the story
  * and the 4Cs split into two boards that each fit their panel exactly,
- * rather than one long scroll. Only one opens at a time — two open
- * boards plus the inscription panel would not fit side by side at
- * iPad-landscape width, and an accordion keeps the stone at least
- * partly visible whichever board is out. The experience targets
+ * rather than one long scroll. Only one opens at a time. The stage
+ * behind the stack doesn't resize to make room for an open board — the
+ * board just overlays on top of it, covering whatever's underneath —
+ * so the inscription panel to its right stays fully open too instead of
+ * collapsing to give the open board more width. The experience targets
  * iPad/browser widths, not phones, so there's deliberately no separate
  * narrower fallback presentation.
  */
@@ -50,27 +51,13 @@ const BOARD_WIDTH_MIN = 320;
 const BOARD_WIDTH_MAX = 680;
 const BOARD_WIDTH = `clamp(${BOARD_WIDTH_MIN}px, min(46vw, 100vw - 740px), ${BOARD_WIDTH_MAX}px)`;
 
-// The stage doesn't resize when a board opens — it just gets covered
-// more — so DiamondExperience uses this to also pull its own visible
-// edge back by the board's width (see getOpenBoardWidth), so the
-// stone's visible edge lines up with where the board actually starts
-// instead of getting cropped by it. Zero here (rather than a further
-// fixed gap) so that edge sits flush against the board's own left-edge
-// shadow — the shadow itself reads as the breathing room, instead of a
-// second, separate strip of exposed black behind it.
-export const OPEN_PANEL_BUFFER = 0;
-
-// Mirrors the BOARD_WIDTH clamp above numerically, so DiamondExperience
-// can reserve the right amount of extra stage width for whichever
-// board is currently open without measuring the DOM.
-export function getOpenBoardWidth(viewportWidth) {
-  const preferred = Math.min(0.46 * viewportWidth, viewportWidth - 740);
-  return Math.min(BOARD_WIDTH_MAX, Math.max(BOARD_WIDTH_MIN, preferred));
-}
-
+// Eggshell, Chalk, Ash Grey — light to dark, left to right. 4Cs now
+// sits on Chalk (not its own Ash Grey), so its pills — previously
+// Chalk-on-Ash-Grey — were bumped to Eggshell in SpecsPanel to stay
+// visible against the panel now matching their old color.
 const PANELS = [
-  { id: "story", label: "About", surface: "#f3f2ed" },
-  { id: "specs", label: "4Cs", surface: "#bfbfb1" },
+  { id: "story", label: "About", surface: "#f1f2ed" },
+  { id: "specs", label: "4Cs", surface: "#dfdfd7" },
 ];
 
 function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) {
@@ -121,16 +108,8 @@ function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) 
   );
 }
 
-export default function SidePanelStack({ diamond, tracrRecord, onOpenChange, onClose }) {
+export default function SidePanelStack({ diamond, tracrRecord, onClose }) {
   const [openPanel, setOpenPanel] = useState(null);
-
-  // Reports up as its own effect, not inline in toggle()'s setState
-  // updater — that updater can re-run during React's own bookkeeping,
-  // and calling a different component's setState from inside it trips
-  // "Cannot update a component while rendering a different component".
-  useEffect(() => {
-    onOpenChange?.(openPanel !== null);
-  }, [openPanel, onOpenChange]);
 
   function toggle(id) {
     // Reads openPanel directly (not via setOpenPanel's updater form) so
@@ -170,13 +149,11 @@ export default function SidePanelStack({ diamond, tracrRecord, onOpenChange, onC
         <SpecsPanel diamond={diamond} />
       </CollapsiblePanel>
 
-      <InscriptionPanel
-        collapsed={openPanel !== null}
-        onExpand={() => {
-          if (openPanel) toggle(openPanel);
-        }}
-        onClose={onClose}
-      />
+      {/* Stays fully open even while an About/4Cs board is open — that
+          board now overlays over the stage instead of squeezing it, so
+          there's no longer a width crunch forcing this panel to give up
+          its own space back to whichever board is out. */}
+      <InscriptionPanel onClose={onClose} />
     </motion.div>
   );
 }

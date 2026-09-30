@@ -6,13 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import RecognitionOverlay from "./RecognitionOverlay";
 import LightSweep from "./LightSweep";
 import DiamondStage from "./DiamondStage";
-import SidePanelStack, {
-  RAIL_WIDTH,
-  SIDE_PANEL_WIDTH,
-  STACK_RAIL_TOTAL,
-  OPEN_PANEL_BUFFER,
-  getOpenBoardWidth,
-} from "./SidePanelStack";
+import SidePanelStack, { SIDE_PANEL_WIDTH, STACK_RAIL_TOTAL } from "./SidePanelStack";
 import PrototypeControls from "./PrototypeControls";
 import { Icon } from "./icons";
 import { playRecognitionChime, vibrate } from "@/lib/feedback";
@@ -42,7 +36,6 @@ export default function DiamondExperience({
   const router = useRouter();
   const viewportWidth = useViewportWidth();
   const [recognized, setRecognized] = useState(false);
-  const [stackPanelOpen, setStackPanelOpen] = useState(false);
   // The side stack (About/4Cs rails plus the inscription panel) stays
   // fully hidden until the viewer explicitly asks for more — DiamondStage's
   // "More about this diamond" button — rather than appearing on its own
@@ -65,7 +58,6 @@ export default function DiamondExperience({
 
   function replayRecognition() {
     setRecognized(false);
-    setStackPanelOpen(false); // SidePanelStack unmounts below without a chance to report itself closed
     setDetailsRevealed(false);
     setSweep(false); // so the light glimmer is ready to fire again on the next first tap
     setStageKey((k) => k + 1); // remounts DiamondStage, clearing its focus/zoom/tilt state too
@@ -97,34 +89,19 @@ export default function DiamondExperience({
         className="absolute inset-0"
         animate={{
           opacity: recognized ? 1 : 0,
-          // The stage stops short of the whole right-hand stack — the
-          // olive inscription panel plus the two closed rails beside it
-          // — so nothing in the photo sits permanently hidden behind
-          // them. When a rail opens its board, the stack grows further
-          // left over the stage without the stage itself pulling back to
-          // match, so the stone's visible edge lands flush against the
-          // open panel with no breathing room — pull back further here
-          // by that board's width plus a fixed buffer to fix that.
-          // Capped by MIN_STAGE_WIDTH so that reservation never eats so
-          // much of a moderate-width window that the stone is squeezed
-          // to an unreadable sliver.
-          //
-          // The inscription panel collapses to a bare rail (see
-          // InscriptionPanel's `collapsed` prop) whenever a board opens,
-          // so an open board's own width isn't the only change to the
-          // stack's total footprint — the inscription panel also gives
-          // back (SIDE_PANEL_WIDTH − RAIL_WIDTH) of what the baseline
-          // term above reserved for it. Without subtracting that back
-          // out, the stage would stay pulled in by space the stack no
-          // longer actually occupies, leaving a gap between the photo
-          // and the (now narrower) stack.
+          // The stage stops short of the right-hand stack's baseline
+          // footprint — the olive inscription panel plus the two closed
+          // rails beside it — so nothing in the photo sits permanently
+          // hidden behind them. It does NOT pull back further when a
+          // rail opens its board: that board overlays on top of the
+          // stage instead (SidePanelStack renders above it, z-30),
+          // covering whatever headline/text sits underneath rather than
+          // shrinking the stage to dodge it. Capped by MIN_STAGE_WIDTH so
+          // the baseline reservation never eats so much of a moderate-
+          // width window that the stone is squeezed to an unreadable
+          // sliver.
           right: Math.min(
-            (detailsRevealed ? SIDE_PANEL_WIDTH + STACK_RAIL_TOTAL : 0) +
-              (detailsRevealed && stackPanelOpen
-                ? getOpenBoardWidth(viewportWidth) +
-                  OPEN_PANEL_BUFFER -
-                  (SIDE_PANEL_WIDTH - RAIL_WIDTH)
-                : 0),
+            detailsRevealed ? SIDE_PANEL_WIDTH + STACK_RAIL_TOTAL : 0,
             viewportWidth > 0 ? Math.max(0, viewportWidth - MIN_STAGE_WIDTH) : Infinity
           ),
         }}
@@ -165,7 +142,6 @@ export default function DiamondExperience({
             key="side-panels"
             diamond={diamond}
             tracrRecord={tracrRecord}
-            onOpenChange={setStackPanelOpen}
             onClose={() => setDetailsRevealed(false)}
           />
         ) : null}

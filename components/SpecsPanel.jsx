@@ -38,9 +38,12 @@ function Cell({ label, children, className = "" }) {
   );
 }
 
-// Chalk, from the brand palette — a step lighter than the panel's own
-// Ash Grey surface, so the pill reads as its own shape.
-const PILL_BG = "#dfdfd7";
+// Eggshell, from the brand palette — a step lighter than this panel's
+// own Chalk surface, so the pill reads as its own shape. (Was Chalk
+// itself, back when this panel sat on Ash Grey — the light-to-dark
+// panel ramp moved this panel onto Chalk, so the pill was bumped
+// lighter again to keep the same contrast.)
+const PILL_BG = "#f1f2ed";
 
 function CharacteristicPill({ name }) {
   return (

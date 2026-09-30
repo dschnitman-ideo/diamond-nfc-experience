@@ -1,18 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import DiamondMark from "./DiamondMark";
 import { getStageImages } from "@/data/diamondStageImages";
-import { playZoomChime, vibrate } from "@/lib/feedback";
 
 const EASE = [0.22, 1, 0.36, 1];
-
-// Flip to false to restore the normal tap-to-zoom start. True skips
-// straight to the closest (inscription) level so the authenticated
-// screen is what's live on load, without tapping through first.
-const START_AT_FINAL_LEVEL = true;
 
 // The typewriter headline types word by word, not the whole two-line
 // block at once, each word's own duration set by its length at a fixed
@@ -163,16 +157,12 @@ function EdgeBracket({ side, className = "" }) {
 }
 
 /**
- * The full-screen stone itself. Starts on the zoomed-out product shot;
- * each tap steps into the next, closer photo, crossfading rather than
- * cutting. The first tap also fires onFocus, once, so the parent's
- * full-screen light sweep still plays on the viewer's first touch —
- * a tap from the final, closest level starts the sequence over. Which
- * three photos it steps through is per-diamond (see
- * data/diamondStageImages) so each stone can have its own set. Once
- * the viewer reaches the closest (inscription) level, the frame gets
- * the full "authenticated" treatment — corner accents, edge labels,
- * a confirmation headline — rather than just a small callout pill.
+ * The full-screen stone itself — always the closest, inscription-level
+ * photo, straight to the full "authenticated" treatment (corner accents,
+ * edge labels, confirmation headline) rather than a tap-to-zoom sequence
+ * through fuzzier intermediate shots first. Which photo that is is
+ * per-diamond (see data/diamondStageImages) so each stone can have its
+ * own.
  */
 export default function DiamondStage({
   diamondId,
@@ -183,7 +173,7 @@ export default function DiamondStage({
   layout = "centered",
 }) {
   const stages = getStageImages(diamondId);
-  const maxLevel = stages.length - 1;
+  const stage = stages[stages.length - 1];
   // The button's first entrance is deliberately staggered behind the
   // typewriter (see its transition below). Once it's played that once,
   // later show/hide toggles — closing the panel with its own X, say —
@@ -191,26 +181,15 @@ export default function DiamondStage({
   // the multi-second delay. State, not a ref: its value feeds straight
   // into JSX below, and reading a ref during render isn't safe.
   const [buttonEntered, setButtonEntered] = useState(false);
-  const [level, setLevel] = useState(START_AT_FINAL_LEVEL ? maxLevel : 0);
-  const hasFocused = useRef(START_AT_FINAL_LEVEL);
 
-  function handleTap() {
-    if (!hasFocused.current) {
-      hasFocused.current = true;
-      onFocus?.();
-    }
-    if (level >= maxLevel) {
-      setLevel(0);
-      vibrate(8);
-    } else {
-      setLevel((l) => l + 1);
-      playZoomChime();
-      vibrate(18);
-    }
-  }
-
-  const stage = stages[level];
-  const atFinalLevel = level === maxLevel;
+  // Used to fire on the viewer's first tap, back when this stage
+  // stepped through zoom levels; with no tap left to hang it on, the
+  // parent's full-screen light sweep now just fires once as this
+  // (permanently final) view mounts.
+  useEffect(() => {
+    onFocus?.();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Pieces shared by both stage layouts ("centered" and "editorial"), so
   // the typewriter headline and the staggered button entrance behave the
@@ -226,7 +205,7 @@ export default function DiamondStage({
       disagreed on how wide a line was. */
   const renderHeadline = (className = "") => (
     <p
-      className={`relative whitespace-nowrap font-[family-name:var(--font-display)] uppercase leading-[1.15] tracking-[0.12em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)] ${className}`}
+      className={`relative whitespace-nowrap font-[family-name:var(--font-display)] capitalize leading-[1.02] tracking-[0.01em] text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)] ${className}`}
     >
       <TypedWord {...HEADLINE_TIMINGS[0]} />
       <br />
@@ -246,20 +225,12 @@ export default function DiamondStage({
       key across repeated show/hide cycles) left it stuck at
       its exit values on some later re-entries instead of
       animating back in, a framer-motion quirk with this exact
-      pattern. Animating its own opacity/y instead, the same
-      way InscriptionPanel's collapse/expand already does
-      reliably, sidesteps it entirely. */
+      pattern. Animating its own opacity/y instead sidesteps it
+      entirely. */
   const renderDetailsButton = (className = "") => (
     <motion.button
       type="button"
-      onClick={(event) => {
-        // The stage's own tap-to-zoom handler is bound to the
-        // whole photo underneath this button — stop the tap
-        // from reaching it, or clicking the button also cycles
-        // the zoom level.
-        event.stopPropagation();
-        onOpenDetails?.();
-      }}
+      onClick={() => onOpenDetails?.()}
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: detailsOpen ? 0 : 1, y: detailsOpen ? 6 : 0 }}
       // Hover scale lives here, not in a Tailwind hover:/transition-
@@ -289,89 +260,53 @@ export default function DiamondStage({
     // width — which narrows when a side panel opens — rather than the window.
     <div className="relative h-full w-full [container-type:size]">
       <div className="absolute inset-0 overflow-hidden">
-        <button
-          type="button"
-          onClick={handleTap}
-          aria-label={atFinalLevel ? "Start over from the full view" : "Zoom in on the diamond"}
-          className="relative block h-full w-full cursor-pointer touch-manipulation select-none"
+        <motion.div
+          className="absolute inset-0"
+          initial={{ opacity: 0, scale: 1.06 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: EASE }}
         >
-          {/* "sync" (the default — no `mode` prop), not "wait": the
-              outgoing and incoming photos need to cross-fade over each
-              other so the stone stays visible the whole time. "wait"
-              fully fades the old photo out before the new one fades
-              in, leaving a dim gap right when LightSweep plays over
-              the first tap — reading as "sweep, then the diamond
-              appears" instead of the sweep gliding over a stone
-              that's visible throughout. */}
-          <AnimatePresence>
-            <motion.div
-              key={level}
-              className="absolute inset-0"
-              initial={{ opacity: 0, scale: 1.06 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.97 }}
-              transition={{ duration: 0.6, ease: EASE }}
-            >
-              {/* The real photography is a fixed, wide (1920x1010),
-                  straight-on shot — the inscription band runs most of
-                  that width. object-cover crops to fill any aspect
-                  ratio, but on a narrow/portrait viewport it has to zoom
-                  in enough that the inscription's own edges fall
-                  outside the crop. object-contain guarantees the whole
-                  shot — inscription included — is always fully visible,
-                  whatever the viewport shape; the blurred cover copy
-                  behind it fills what would otherwise be flat dead
-                  space on the sides/top so that never reads as broken
-                  letterboxing, just a soft-focus backdrop. */}
-              <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
-                <Image
-                  src={stage.src}
-                  alt=""
-                  fill
-                  sizes="100vw"
-                  className="scale-110 object-cover opacity-70 blur-2xl"
-                />
-              </div>
-              <Image
-                src={stage.src}
-                alt={stage.alt}
-                fill
-                sizes="100vw"
-                className="object-contain"
-                priority={level === 0}
-              />
-            </motion.div>
-          </AnimatePresence>
-
-          {!atFinalLevel ? (
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute z-10 flex h-[70px] w-[70px] -translate-x-1/2 -translate-y-1/2 items-center justify-center"
-              style={{ left: `${stage.hotspot.left}%`, top: `${stage.hotspot.top}%` }}
-            >
-              <span className="absolute h-full w-full animate-ping rounded-full border border-[var(--brass)]/70" />
-              <span className="relative flex h-11 w-11 items-center justify-center rounded-full border border-[var(--brass)]/80 bg-black/45 shadow-[0_0_12px_rgba(0,0,0,0.5)] backdrop-blur-sm">
-                <DiamondMark className="h-5 w-5 text-[var(--brass)]" />
-              </span>
-            </span>
-          ) : null}
-        </button>
+          {/* The real photography is a fixed, wide (1920x1010),
+              straight-on shot — the inscription band runs most of
+              that width. object-cover crops to fill any aspect
+              ratio, but on a narrow/portrait viewport it has to zoom
+              in enough that the inscription's own edges fall
+              outside the crop. object-contain guarantees the whole
+              shot — inscription included — is always fully visible,
+              whatever the viewport shape; the blurred cover copy
+              behind it fills what would otherwise be flat dead
+              space on the sides/top so that never reads as broken
+              letterboxing, just a soft-focus backdrop. */}
+          <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
+            <Image
+              src={stage.src}
+              alt=""
+              fill
+              sizes="100vw"
+              className="scale-110 object-cover opacity-70 blur-2xl"
+            />
+          </div>
+          <Image
+            src={stage.src}
+            alt={stage.alt}
+            fill
+            sizes="100vw"
+            className="object-contain"
+            priority
+          />
+        </motion.div>
       </div>
 
       {/* The "authenticated" hallmark treatment — corner accents, edge
-          labels, confirmation headline — replaces the plain callout
-          pill once the viewer has zoomed all the way to the
-          inscription. */}
-      <AnimatePresence>
-        {atFinalLevel ? (
-          <motion.div
-            key="authenticated-frame"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: EASE }}
-            className="pointer-events-none absolute inset-0 z-20"
-          >
+          labels, confirmation headline — is the only treatment this
+          stage ever shows now, so it's just always mounted rather than
+          gated behind reaching some final zoom level. */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, ease: EASE }}
+        className="pointer-events-none absolute inset-0 z-20"
+      >
             {/* A dedicated dark backdrop behind the brackets/labels,
                 independent of either layout's own vignette (the radial
                 one only darkens toward the center layout's own edges;
@@ -438,7 +373,7 @@ export default function DiamondStage({
                       Confirmed
                     </motion.p>
 
-                    {renderHeadline("mt-3 text-left text-[clamp(20px,6.4cqw,38px)]")}
+                    {renderHeadline("mt-3 text-left text-[clamp(24px,7.6cqw,46px)]")}
 
                     <div className="mt-7 h-px w-full bg-white/55" />
 
@@ -509,7 +444,7 @@ export default function DiamondStage({
                     Confirmed
                   </motion.p>
 
-                  {renderHeadline("mt-3 text-center text-[clamp(20px,6.6cqw,41px)]")}
+                  {renderHeadline("mt-3 text-center text-[clamp(24px,7.8cqw,49px)]")}
 
                   <motion.div
                     {...idReveal}
@@ -528,8 +463,6 @@ export default function DiamondStage({
               </>
             )}
           </motion.div>
-        ) : null}
-      </AnimatePresence>
 
     </div>
   );
