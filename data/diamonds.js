@@ -6,108 +6,32 @@
  * separate from Tracr (provenance) and GIA (certification) data so any
  * of the three can later be swapped for a real API without touching
  * the others.
+ *
+ * Live-edited from a Google Sheet (see lib/sheetDiamonds.js) rather
+ * than hardcoded here — the fallback set (data/fallbackDiamonds.js) is
+ * only what's used when that sheet is unreachable. `getDiamonds`/
+ * `getDiamond`/`getAdjacentDiamonds` are async for that reason; every
+ * caller reads through them rather than importing an array directly.
  */
 
-export const diamonds = [
-  {
-    id: "001",
-    name: "The Meridian",
-    shape: "Round Brilliant",
-    carat: 1.52,
-    cut: "Excellent",
-    color: "F",
-    clarity: "VS1",
-    clarityCharacteristics: ["Feather", "Crystal"],
-    polish: "Excellent",
-    symmetry: "Excellent",
-    fluorescence: "None",
-    measurements: "7.35 × 7.38 × 4.52 mm",
-    tableDepth: "Table 58% · Depth 61.8%",
-    description:
-      "A round brilliant of exceptional fire, cut to return maximum light with every movement. Its near-colorless grade and excellent proportions give it a bright, lively face-up appearance.",
-  },
-  {
-    id: "002",
-    name: "The Solstice",
-    shape: "Oval",
-    carat: 2.01,
-    cut: "Very Good",
-    color: "G",
-    clarity: "VVS2",
-    clarityCharacteristics: ["Pinpoint"],
-    polish: "Excellent",
-    symmetry: "Very Good",
-    fluorescence: "Faint",
-    measurements: "9.87 × 6.92 × 4.41 mm",
-    tableDepth: "Table 61% · Depth 63.4%",
-    description:
-      "An elongated oval with a soft, elegant silhouette. Exceptionally clean under magnification, with a warm brilliance that flatters the hand.",
-  },
-  {
-    id: "003",
-    name: "The Aurelia",
-    shape: "Emerald Cut",
-    carat: 1.84,
-    cut: "Excellent",
-    color: "D",
-    clarity: "IF",
-    // Internally Flawless means no inclusions at all — the one
-    // characteristic on file is a surface Natural (a remnant patch of
-    // the original rough left on the girdle), which doesn't affect the
-    // IF grade since it isn't an inclusion.
-    clarityCharacteristics: ["Natural"],
-    polish: "Excellent",
-    symmetry: "Excellent",
-    fluorescence: "None",
-    measurements: "8.12 × 5.96 × 3.98 mm",
-    tableDepth: "Table 63% · Depth 66.9%",
-    description:
-      "A step-cut diamond of rare purity: completely colorless and internally flawless. Its long, open facets create a hall-of-mirrors effect rather than the scatter of a brilliant cut.",
-  },
-  {
-    id: "004",
-    name: "The Cascade",
-    shape: "Cushion",
-    carat: 1.35,
-    cut: "Very Good",
-    color: "H",
-    clarity: "VS2",
-    clarityCharacteristics: ["Feather", "Needle"],
-    polish: "Very Good",
-    symmetry: "Very Good",
-    fluorescence: "None",
-    measurements: "6.84 × 6.71 × 4.35 mm",
-    tableDepth: "Table 60% · Depth 64.8%",
-    description:
-      "A cushion cut with rounded corners and a soft, pillowy brilliance. Its warmer color grade gives the stone a gentle, candlelit glow.",
-  },
-  {
-    id: "005",
-    name: "The Ember",
-    shape: "Radiant Cut",
-    carat: 1.68,
-    cut: "Excellent",
-    color: "E",
-    clarity: "VS1",
-    clarityCharacteristics: ["Crystal", "Feather"],
-    polish: "Excellent",
-    symmetry: "Excellent",
-    fluorescence: "None",
-    measurements: "7.42 × 6.18 × 4.29 mm",
-    tableDepth: "Table 66% · Depth 65.2%",
-    description:
-      "A radiant cut that trades the brilliant's round scatter for crisp, angular flashes of light. Its cropped corners and near-colorless grade give it a bold, architectural presence on the hand.",
-  },
-];
+import { fetchSheetDiamonds } from "@/lib/sheetDiamonds";
+import { FALLBACK_DIAMONDS } from "./fallbackDiamonds";
 
-export function getDiamond(id) {
-  return diamonds.find((d) => d.id === id) ?? null;
+export async function getDiamonds() {
+  const sheetDiamonds = await fetchSheetDiamonds();
+  return sheetDiamonds ?? FALLBACK_DIAMONDS;
 }
 
-export function getAdjacentDiamonds(id) {
-  const index = diamonds.findIndex((d) => d.id === id);
+export async function getDiamond(id) {
+  const all = await getDiamonds();
+  return all.find((d) => d.id === id) ?? null;
+}
+
+export async function getAdjacentDiamonds(id) {
+  const all = await getDiamonds();
+  const index = all.findIndex((d) => d.id === id);
   if (index === -1) return { prev: null, next: null };
-  const prev = diamonds[(index - 1 + diamonds.length) % diamonds.length];
-  const next = diamonds[(index + 1) % diamonds.length];
+  const prev = all[(index - 1 + all.length) % all.length];
+  const next = all[(index + 1) % all.length];
   return { prev, next };
 }

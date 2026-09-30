@@ -8,7 +8,7 @@ import DiamondExperience from "@/components/DiamondExperience";
 // same experience with a different stage layout.
 export async function diamondMetadata(params) {
   const { id } = await params;
-  const diamond = getDiamond(id);
+  const diamond = await getDiamond(id);
   return {
     title: diamond ? `${diamond.name}: Diamond ${diamond.id}` : "Diamond not found",
   };
@@ -16,12 +16,12 @@ export async function diamondMetadata(params) {
 
 export async function renderDiamondPage(params, stageLayout) {
   const { id } = await params;
-  const diamond = getDiamond(id);
+  const diamond = await getDiamond(id);
   if (!diamond) notFound();
 
   const tracrRecord = getTracrRecord(id);
   const giaRecord = getGiaRecord(id);
-  const { prev, next } = getAdjacentDiamonds(id);
+  const { prev, next } = await getAdjacentDiamonds(id);
 
   return (
     <DiamondExperience

@@ -2,7 +2,15 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { diamonds } from "@/data/diamonds";
+// This dev-only switcher stays on the local fallback list rather than
+// the live sheet — it's a debug tool, not consumer-facing, and doesn't
+// need to plumb an async server fetch through several client
+// components just to list a few sample ids. Imported from
+// fallbackDiamonds directly, not data/diamonds — that module also
+// pulls in the sheet fetcher's server-only React.cache() call, which
+// breaks when a "use client" component like this one drags it into
+// the browser bundle.
+import { FALLBACK_DIAMONDS as diamonds } from "@/data/fallbackDiamonds";
 import { Icon } from "./icons";
 
 /**

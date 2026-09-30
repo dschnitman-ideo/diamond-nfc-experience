@@ -1,11 +1,13 @@
 import DiamondMark from "@/components/DiamondMark";
 import HomeDirectory from "@/components/HomeDirectory";
+import { getDiamondDirectory, PILOT_BATCH_SIZE } from "@/data/diamondDirectory";
 
 export const metadata = {
   title: "Diamond Experience: Pilot Batch",
 };
 
-export default function Home() {
+export default async function Home() {
+  const directory = await getDiamondDirectory();
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-md flex-col px-6 py-16 text-[var(--ink)]">
       <DiamondMark className="h-10 text-[var(--ink)]" />
@@ -15,7 +17,7 @@ export default function Home() {
       <h1 className="mt-2 font-[family-name:var(--font-display)] text-3xl leading-tight">
         NFC Diamond Experience
       </h1>
-      <HomeDirectory />
+      <HomeDirectory directory={directory} batchSize={PILOT_BATCH_SIZE} />
     </main>
   );
 }

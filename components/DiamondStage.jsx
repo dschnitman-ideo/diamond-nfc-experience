@@ -8,6 +8,19 @@ import { getStageImages } from "@/data/diamondStageImages";
 
 const EASE = [0.22, 1, 0.36, 1];
 
+// Added to the mark/headline/id/button entrance delays below (not to
+// the brackets — those are the frame, not the "logo and text", and can
+// fade in together with the photo). DiamondStage mounts well before a
+// viewer can actually see it: RecognitionOverlay covers it until
+// RECOGNITION_MS (800ms) plus its own ~0.42s fade-out in
+// DiamondExperience, roughly 1.22s. Without this offset, the mark and
+// "Confirmed" text (originally on a 0.1s/0.3s delay) had already
+// finished fading in — at full opacity, just invisible behind the
+// black overlay — well before that 1.22s point, so the instant the
+// overlay cleared, the stone and its whole hallmark treatment appeared
+// simultaneously instead of the bare stone arriving first.
+const REVEAL_OFFSET = 2.2;
+
 // The typewriter headline types word by word, not the whole two-line
 // block at once, each word's own duration set by its length at a fixed
 // characters-per-second pace — a real typewriter runs at one constant
@@ -17,17 +30,13 @@ const EASE = [0.22, 1, 0.36, 1];
 // duration exactly, not less, so one word's caret has fully faded
 // before the next one's fades in — overlapping them left both carets
 // visible at once for a stretch, reading as a stutter rather than one
-// continuous pass. The initial delay is long enough to clear the
-// recognition overlay's own fade (RECOGNITION_MS=800 in
-// DiamondExperience, plus its ~0.4s exit) — these motion values start
-// their own clock at this component's mount, not at whatever point the
-// stage actually becomes visible, so a short delay here reads as
-// "already mid-word" the moment the black screen clears rather than as
-// the start of the type-in. "linear", not the app's usual eased curve:
-// a typewriter's carriage moves at one constant speed, not an
-// eased-out glide.
-const HEADLINE_WORD_DELAY = 1.3;
-const HEADLINE_SECONDS_PER_CHAR = 0.1;
+// continuous pass. Built on REVEAL_OFFSET (see above) plus its own
+// 1.3s, so typing starts well after the mark/"Confirmed" text have
+// already faded in, not simultaneously with them. "linear", not the
+// app's usual eased curve: a typewriter's carriage moves at one
+// constant speed, not an eased-out glide.
+const HEADLINE_WORD_DELAY = REVEAL_OFFSET + 1.3;
+const HEADLINE_SECONDS_PER_CHAR = 0.065;
 const HEADLINE_WORDS = ["Authenticated", "natural", "diamond"];
 const HEADLINE_TIMINGS = (() => {
   let cursor = HEADLINE_WORD_DELAY;
@@ -359,7 +368,7 @@ export default function DiamondStage({
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, duration: 0.4, ease: EASE }}
+                  transition={{ delay: REVEAL_OFFSET + 0.1, duration: 0.9, ease: "easeOut" }}
                   className="absolute inset-x-0 bottom-0 px-6 pb-[calc(6.5rem+env(safe-area-inset-bottom))] sm:px-12 sm:pb-24"
                 >
                   <div className="w-full max-w-[36rem]">
@@ -367,7 +376,7 @@ export default function DiamondStage({
                     <motion.p
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      transition={{ delay: 0.3, duration: 0.3, ease: EASE }}
+                      transition={{ delay: REVEAL_OFFSET + 0.4, duration: 0.7, ease: "easeOut" }}
                       className="mt-5 text-xs font-medium uppercase tracking-[0.06em] text-white/85"
                     >
                       Confirmed
@@ -420,7 +429,7 @@ export default function DiamondStage({
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1, duration: 0.4, ease: EASE }}
+                  transition={{ delay: REVEAL_OFFSET + 0.1, duration: 0.9, ease: "easeOut" }}
                   className="absolute left-1/2 top-[68%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center"
                 >
                   {/* Darkens whatever part of the photo sits behind the mark
@@ -438,7 +447,7 @@ export default function DiamondStage({
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3, duration: 0.3, ease: EASE }}
+                    transition={{ delay: REVEAL_OFFSET + 0.4, duration: 0.7, ease: "easeOut" }}
                     className="mt-7 text-center text-base font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]"
                   >
                     Confirmed

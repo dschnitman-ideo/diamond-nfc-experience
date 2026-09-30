@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { diamondDirectory, PILOT_BATCH_SIZE } from "@/data/diamondDirectory";
 import { Icon } from "@/components/icons";
 import { vibrate } from "@/lib/feedback";
 
@@ -24,13 +23,13 @@ function ChevronRight({ className = "" }) {
   );
 }
 
-export default function HomeDirectory() {
+export default function HomeDirectory({ directory, batchSize }) {
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return diamondDirectory;
-    return diamondDirectory.filter((d) => {
+    if (!q) return directory;
+    return directory.filter((d) => {
       return (
         d.id.includes(q) ||
         d.reportNumber?.toLowerCase().includes(q) ||
@@ -38,14 +37,14 @@ export default function HomeDirectory() {
         d.shape?.toLowerCase().includes(q)
       );
     });
-  }, [query]);
+  }, [query, directory]);
 
   return (
     <>
       <p className="mt-3 text-sm leading-relaxed text-[var(--ink-soft)]">
         In production, each diamond carries its own physical NFC tag that
         opens its unique URL directly, with no index page involved. This
-        stands in for that tap, scaled to the {PILOT_BATCH_SIZE}-stone pilot
+        stands in for that tap, scaled to the {batchSize}-stone pilot
         batch — GIA inscribes and photographs every stone up front, but the
         full experience below is only built out for a handful so far. The
         rest are placeholders until that data arrives.
@@ -66,7 +65,7 @@ export default function HomeDirectory() {
       </div>
 
       <p className="mt-3 text-xs text-[var(--ink-faint)]">
-        {filtered.length} of {PILOT_BATCH_SIZE} stones
+        {filtered.length} of {batchSize} stones
       </p>
 
       <div className="mt-3 flex flex-col gap-2 pb-16">
