@@ -20,14 +20,14 @@ const ROUGH_IMAGE = {
 
 function Label({ children }) {
   return (
-    <p className="text-label font-semibold uppercase tracking-caps text-[#16150f]">
+    <p className="text-label font-semibold uppercase tracking-caps text-[#000000]">
       {children}
     </p>
   );
 }
 
 function Rule() {
-  return <div className="h-px w-full bg-[#16150f]/55" />;
+  return <div className="h-px w-full bg-[#000000]/55" />;
 }
 
 export default function StoryPanel({ diamond, tracrRecord }) {
@@ -45,14 +45,14 @@ export default function StoryPanel({ diamond, tracrRecord }) {
     // board's right and, per the fanned-deck overlap, pulls left by that
     // same 28px and paints over it, so a plain symmetric px- here leaves
     // almost no visible gap and content reads as flush against that rail.
-    <div className="relative flex h-full flex-col gap-[2.2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#16150f]">
+    <div className="relative flex h-full flex-col gap-[2.2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#000000]">
       <p className="flex-none font-[family-name:var(--font-display)] text-[min(4vh,6.6cqw)] leading-[1.05] tracking-[-0.01em]">
         This diamond has a story.
       </p>
 
       {/* Matches the 4Cs panel's own mark placement — bottom corner
           rather than sitting inline with the header. */}
-      <DiamondMark className="absolute bottom-[clamp(18px,3vh,34px)] right-[calc(clamp(20px,2.6vw,38px)+28px)] h-[clamp(30px,4vh,46px)] w-[clamp(30px,4vh,46px)] text-[#16150f]" />
+      <DiamondMark className="absolute bottom-[clamp(18px,3vh,34px)] right-[calc(clamp(20px,2.6vw,38px)+28px)] h-[clamp(30px,4vh,46px)] w-[clamp(30px,4vh,46px)] text-[#000000]" />
 
       <div className="flex flex-none flex-col gap-[0.8vh]">
         <Rule />
@@ -98,7 +98,7 @@ export default function StoryPanel({ diamond, tracrRecord }) {
           <div className="flex gap-[clamp(4px,0.5vw,8px)]">
             <div className="flex min-w-0 flex-1 flex-col gap-[0.6vh]">
               <Label>Polished</Label>
-              <div className="relative aspect-square w-full overflow-hidden bg-[#dfe2da]">
+              <div className="relative aspect-square w-full overflow-hidden bg-[#dfdfd7]">
                 <Image
                   src={thumbnail.src}
                   alt={thumbnail.alt}
@@ -111,7 +111,7 @@ export default function StoryPanel({ diamond, tracrRecord }) {
 
             <div className="flex min-w-0 flex-1 flex-col gap-[0.6vh]">
               <Label>Rough</Label>
-              <div className="relative aspect-square w-full overflow-hidden bg-[#1d2027]">
+              <div className="relative aspect-square w-full overflow-hidden bg-[#343434]">
                 <Image
                   src={ROUGH_IMAGE.src}
                   alt={ROUGH_IMAGE.alt}

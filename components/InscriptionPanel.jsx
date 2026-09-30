@@ -38,7 +38,7 @@ export default function InscriptionPanel({ collapsed = false, onExpand, onClose 
       animate={{ opacity: 1, x: 0, width: collapsed ? RAIL_WIDTH : SIDE_PANEL_WIDTH }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       style={{ marginLeft: -CARD_OVERLAP, borderRadius: "28px 0 0 28px" }}
-      className="pointer-events-auto relative flex h-full flex-none flex-col overflow-hidden bg-[#838557] shadow-[-18px_0_40px_rgba(0,0,0,0.3)]"
+      className="pointer-events-auto relative flex h-full flex-none flex-col overflow-hidden bg-[#ccb6e4] shadow-[-18px_0_40px_rgba(0,0,0,0.3)]"
     >
       {/* Always visible/clickable, collapsed or not — closing everything
           is exactly what someone with a board open (About/4Cs) is most

@@ -13,11 +13,8 @@ import SidePanelStack, {
   OPEN_PANEL_BUFFER,
   getOpenBoardWidth,
 } from "./SidePanelStack";
-import ShareButton from "./ShareButton";
-import CompareView from "./CompareView";
 import PrototypeControls from "./PrototypeControls";
 import { Icon } from "./icons";
-import { diamonds as allDiamonds } from "@/data/diamonds";
 import { playRecognitionChime, vibrate } from "@/lib/feedback";
 import { useViewportWidth } from "@/lib/useMediaQuery";
 
@@ -53,12 +50,6 @@ export default function DiamondExperience({
   // the app has (targeting iPad/browser widths) — no separate mobile
   // bottom-sheet fallback.
   const [detailsRevealed, setDetailsRevealed] = useState(false);
-  const [compareOpen, setCompareOpen] = useState(false);
-  // Always default to 001/002 — the two stones with their own real
-  // photography — rather than whichever diamond happens to be open,
-  // since any other pairing falls back to duplicate placeholder shots.
-  const [compareLeftId, setCompareLeftId] = useState("001");
-  const [compareRightId, setCompareRightId] = useState("002");
   const [stageKey, setStageKey] = useState(0);
   const [sweep, setSweep] = useState(false);
   const timeoutRef = useRef(null);
@@ -164,16 +155,6 @@ export default function DiamondExperience({
                 <Icon name="chevronLeft" className="h-[18px] w-[18px]" />
               </button>
             </div>
-            <div className="flex flex-1 items-center justify-end gap-2">
-              <button
-                onClick={() => setCompareOpen(true)}
-                aria-label="Compare diamonds"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--hairline)] text-[var(--ink)] transition-colors hover:border-[var(--hairline-strong)]"
-              >
-                <Icon name="compare" className="h-[18px] w-[18px]" />
-              </button>
-              <ShareButton title={diamond.name} />
-            </div>
           </div>
         </div>
       </motion.div>
@@ -189,16 +170,6 @@ export default function DiamondExperience({
           />
         ) : null}
       </AnimatePresence>
-
-      <CompareView
-        open={compareOpen}
-        onClose={() => setCompareOpen(false)}
-        diamonds={allDiamonds}
-        leftId={compareLeftId}
-        rightId={compareRightId}
-        onChangeLeft={setCompareLeftId}
-        onChangeRight={setCompareRightId}
-      />
 
       <PrototypeControls
         currentId={diamond.id}

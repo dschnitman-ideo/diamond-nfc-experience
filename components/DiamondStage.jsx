@@ -278,7 +278,7 @@ export default function DiamondStage({
       aria-hidden={detailsOpen}
       tabIndex={detailsOpen ? -1 : 0}
       style={{ pointerEvents: detailsOpen ? "none" : "auto" }}
-      className={`max-w-[85cqw] cursor-pointer rounded-full bg-white px-9 py-3 text-[18px] font-medium tracking-[-0.01em] text-[#16150f] ${className}`}
+      className={`max-w-[85cqw] cursor-pointer rounded-full bg-white px-9 py-3 text-[18px] font-medium tracking-[-0.01em] text-[#000000] ${className}`}
     >
       More about this diamond
     </motion.button>

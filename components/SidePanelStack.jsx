@@ -69,8 +69,8 @@ export function getOpenBoardWidth(viewportWidth) {
 }
 
 const PANELS = [
-  { id: "story", label: "About", surface: "#eff2eb" },
-  { id: "specs", label: "4Cs", surface: "#c3c6b6" },
+  { id: "story", label: "About", surface: "#f3f2ed" },
+  { id: "specs", label: "4Cs", surface: "#bfbfb1" },
 ];
 
 function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) {
@@ -91,9 +91,9 @@ function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) 
         onClick={onToggle}
         aria-expanded={open}
         style={{ width: RAIL_WIDTH }}
-        className="flex h-full flex-none items-center justify-start px-6 text-left"
+        className="flex h-full flex-none items-center justify-start px-4 text-left"
       >
-        <span className="whitespace-pre-line text-label font-semibold uppercase tracking-[0.08em] text-[#16150f]">
+        <span className="whitespace-pre-line text-[11px] font-semibold uppercase leading-[1.2] tracking-[0.08em] text-[#000000]">
           {panel.label}
         </span>
       </button>

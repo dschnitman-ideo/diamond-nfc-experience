@@ -7,7 +7,7 @@ import { Icon } from "./icons";
 
 /**
  * Dev-only controls for driving this prototype. Deliberately styled as
- * an unmistakable "backstage" console (monospace, high-contrast lime
+ * an unmistakable "backstage" console (monospace, high-contrast Electric Lavender
  * on black) and kept as a small closed footprint so it doesn't sit on
  * top of the consumer-facing product content underneath it.
  */
@@ -21,14 +21,14 @@ export default function PrototypeControls({ currentId, onOpenDetails, onReplay, 
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? "Close prototype controls" : "Open prototype controls"}
         aria-expanded={open}
-        className="flex h-11 w-11 flex-none items-center justify-center rounded-full border border-dashed border-lime-400/50 bg-black text-lime-300 shadow-lg shadow-black/50"
+        className="flex h-11 w-11 flex-none items-center justify-center rounded-full border border-dashed border-[#ccb6e4]/50 bg-black text-[#ccb6e4] shadow-lg shadow-black/50"
       >
         <Icon name={open ? "close" : "settings"} className="h-4 w-4" />
       </button>
 
       {open ? (
-        <div className="w-64 rounded-xl border border-dashed border-lime-400/40 bg-black p-3 text-lime-200 shadow-lg shadow-black/50">
-          <p className="mb-1.5 text-[10px] uppercase tracking-wider text-lime-400/70">
+        <div className="w-64 rounded-xl border border-dashed border-[#ccb6e4]/40 bg-black p-3 text-[#ccb6e4] shadow-lg shadow-black/50">
+          <p className="mb-1.5 text-[10px] uppercase tracking-wider text-[#ccb6e4]/70">
             Sample diamonds
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -38,8 +38,8 @@ export default function PrototypeControls({ currentId, onOpenDetails, onReplay, 
                 onClick={() => router.push(`/diamond/${d.id}`)}
                 className={`rounded-md border px-2 py-1 transition-colors ${
                   d.id === currentId
-                    ? "border-lime-300 bg-lime-400/10 text-lime-100"
-                    : "border-lime-400/30 hover:border-lime-400/60"
+                    ? "border-[#ccb6e4] bg-[#ccb6e4]/10 text-[#ccb6e4]"
+                    : "border-[#ccb6e4]/30 hover:border-[#ccb6e4]/60"
                 }`}
               >
                 {d.id}
@@ -50,19 +50,19 @@ export default function PrototypeControls({ currentId, onOpenDetails, onReplay, 
           <div className="mt-3 flex flex-col gap-1.5">
             <button
               onClick={onOpenDetails}
-              className="rounded-md border border-lime-400/30 px-2 py-1.5 text-left hover:border-lime-400/60"
+              className="rounded-md border border-[#ccb6e4]/30 px-2 py-1.5 text-left hover:border-[#ccb6e4]/60"
             >
               Open details
             </button>
             <button
               onClick={onReplay}
-              className="rounded-md border border-lime-400/30 px-2 py-1.5 text-left hover:border-lime-400/60"
+              className="rounded-md border border-[#ccb6e4]/30 px-2 py-1.5 text-left hover:border-[#ccb6e4]/60"
             >
               Replay recognition
             </button>
             <button
               onClick={onReset}
-              className="rounded-md border border-lime-400/30 px-2 py-1.5 text-left hover:border-lime-400/60"
+              className="rounded-md border border-[#ccb6e4]/30 px-2 py-1.5 text-left hover:border-[#ccb6e4]/60"
             >
               Reset experience
             </button>

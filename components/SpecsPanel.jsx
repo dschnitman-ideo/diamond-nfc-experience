@@ -1,6 +1,8 @@
 "use client";
 
+import { useLayoutEffect, useRef } from "react";
 import BrilliantPlot from "./BrilliantPlot";
+import ClarityIcon from "./ClarityIcon";
 import DiamondMark from "./DiamondMark";
 
 /**
@@ -27,8 +29,8 @@ function shortShape(shape) {
 function Cell({ label, children, className = "" }) {
   return (
     <div className={`flex min-h-0 flex-col gap-[0.7vh] ${className}`}>
-      <div className="h-px w-full bg-[#16150f]/55" />
-      <p className="text-label font-semibold uppercase tracking-caps text-[#16150f]">
+      <div className="h-px w-full bg-[#000000]/55" />
+      <p className="text-label font-semibold uppercase tracking-caps text-[#000000]">
         {label}
       </p>
       {children}
@@ -36,35 +38,91 @@ function Cell({ label, children, className = "" }) {
   );
 }
 
-// A touch lighter than the panel's own khaki surface (#c3c6b6) — visible
-// as its own shape against the panel rather than blending flat into it,
-// without introducing a new, unrelated color to the sheet.
-const PILL_BG = "#d8dbcf";
+// Chalk, from the brand palette — a step lighter than the panel's own
+// Ash Grey surface, so the pill reads as its own shape.
+const PILL_BG = "#dfdfd7";
 
-function CharacteristicPill({ children }) {
+function CharacteristicPill({ name }) {
   return (
     <span
-      className="rounded-full px-[0.85vw] pb-[0.45vh] pt-[0.35vh] text-[clamp(9px,1.05vh,11px)] font-medium leading-none text-[#16150f]"
+      className="inline-flex items-center gap-[0.35em] rounded-full px-[0.85vw] pb-[0.45vh] pt-[0.35vh] text-[clamp(9px,1.05vh,11px)] font-medium leading-none text-[#000000]"
       style={{ backgroundColor: PILL_BG }}
     >
-      {children}
+      {/* GIA's own plotting symbol for the characteristic, in its
+          red (internal) / green (external) convention. */}
+      <ClarityIcon name={name} className="h-[1.3em] w-[1.3em] flex-none" />
+      {name}
     </span>
   );
 }
 
-function Value({ children }) {
-  const length = typeof children === "string" ? children.length : 0;
-  // Sized against the whole board's width (14cqw), not the grid column
-  // it actually sits in — fine for short values ("1.52", "VS1", "EX")
-  // but a longer, unbreakable word ("Round", "Emerald", "Cushion")
-  // renders wider than its half of the row and bleeds into whatever
-  // sits beside the panel. Cap the ceiling as length grows so long
-  // shape names still fit their own column.
-  const maxCqw = length <= 4 ? 14 : length <= 6 ? 11 : 9;
+// Ceiling for every value: short ones ("D", "EX") stop at the row's
+// height rather than growing to fill their column's width.
+const MAX_VH = 19;
+
+// The colour grade is a single letter, so it would otherwise read as
+// the smallest value on the board — let it set much larger, like the
+// reference's "D".
+const COLOUR_MAX_VH = 26;
+
+// Clarity and Cut are short codes ("IF", "EX") that would otherwise
+// balloon to MAX_VH; cap them near the size a long grade like "VVS2"
+// already sets at, so the pair reads the same from stone to stone.
+const GRADE_MAX_VH = 12;
+
+// Like the reference board, values set as large as their cells allow:
+// longer ones ("1.52", "Round", "Emerald") fill their column's width,
+// short ones cap at MAX_VH. Both values in a row then share the
+// smaller of their two sizes, so "2.01" and "Oval" read as a matched
+// pair rather than two unrelated sizes side by side. Clarity and Cut
+// (the two grades stacked in the right column) are matched the same way. Measured rather
+// than guessed from character counts — the panel's padding is in px,
+// so the column's share of the board shifts between phone, iPad and
+// desktop, and glyph widths vary too much ("H" vs "I") to estimate.
+function useRowMatchedValueSizes(gridRef, deps) {
+  useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+    const fit = () => {
+      const rows = new Map();
+      for (const el of grid.querySelectorAll("[data-value-row]")) {
+        const maxPx = (Number(el.dataset.maxVh) / 100) * window.innerHeight;
+        el.style.fontSize = "100px";
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const textWidth = range.getBoundingClientRect().width;
+        const cellWidth = el.parentElement.clientWidth;
+        const px = textWidth ? Math.min(maxPx, (100 * cellWidth) / textWidth) : maxPx;
+        const row = el.dataset.valueRow;
+        rows.set(row, [...(rows.get(row) ?? []), { el, px }]);
+      }
+      for (const values of rows.values()) {
+        const shared = Math.min(...values.map((v) => v.px));
+        for (const { el } of values) el.style.fontSize = `${shared.toFixed(1)}px`;
+      }
+    };
+    fit();
+    const observer = new ResizeObserver(fit);
+    observer.observe(grid);
+    window.addEventListener("resize", fit);
+    // The display face may still be loading on first paint, and its
+    // metrics differ from the fallback's.
+    document.fonts?.ready.then(fit);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", fit);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, deps);
+}
+
+function Value({ row, maxVh = MAX_VH, children }) {
   return (
     <p
-      style={{ fontSize: `min(10vh, ${maxCqw}cqw)` }}
-      className="font-[family-name:var(--font-display)] leading-[0.95] tracking-[-0.02em] text-[#16150f]"
+      data-value-row={row}
+      data-max-vh={maxVh}
+      style={{ fontSize: `min(${maxVh}vh, 10cqw)` }}
+      className="mt-[0.4vh] self-start whitespace-nowrap font-[family-name:var(--font-display)] leading-[0.95] tracking-[-0.02em] text-[#000000]"
     >
       {children}
     </p>
@@ -72,13 +130,16 @@ function Value({ children }) {
 }
 
 export default function SpecsPanel({ diamond }) {
+  const gridRef = useRef(null);
+  useRowMatchedValueSizes(gridRef, [diamond]);
+
   return (
     // See StoryPanel's identical comment: the extra 28px on the right
     // compensates for the inscription panel's overlap eating into this
     // board's own padding when it's open.
-    <div className="relative flex h-full flex-col gap-[2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#16150f]">
+    <div className="relative flex h-full flex-col gap-[2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#000000]">
       <div className="flex-none">
-        <div className="h-px w-full bg-[#16150f]/55" />
+        <div className="h-px w-full bg-[#000000]/55" />
         <p className="mt-[0.7vh] text-label font-semibold uppercase tracking-caps">4Cs</p>
       </div>
 
@@ -86,35 +147,38 @@ export default function SpecsPanel({ diamond }) {
           hallmark layout) instead of sitting inline with the title —
           the title's own rule now runs the panel's full width instead
           of sharing the row with the icon. */}
-      <DiamondMark className="absolute bottom-[clamp(18px,3vh,34px)] right-[calc(clamp(20px,2.6vw,38px)+28px)] h-[clamp(30px,4vh,46px)] w-[clamp(30px,4vh,46px)] text-[#16150f]" />
+      <DiamondMark className="absolute bottom-[clamp(18px,3vh,34px)] right-[calc(clamp(20px,2.6vw,38px)+28px)] h-[clamp(30px,4vh,46px)] w-[clamp(30px,4vh,46px)] text-[#000000]" />
 
-      <div className="grid min-h-0 flex-1 grid-cols-2 grid-rows-3 gap-x-[clamp(16px,2.4vw,40px)] gap-y-[2vh]">
+      {/* Uneven columns: the right-hand values are words ("Round",
+          "Emerald", "VVS2") and need the width far more than the
+          left's short carat figure and single colour letter. */}
+      <div ref={gridRef} className="grid min-h-0 flex-1 grid-cols-[minmax(0,44fr)_minmax(0,56fr)] grid-rows-3 gap-x-[clamp(16px,2.4vw,40px)] gap-y-[2vh]">
         <Cell label="Carat">
-          <Value>{diamond.carat.toFixed(2)}</Value>
+          <Value row="1">{diamond.carat.toFixed(2)}</Value>
         </Cell>
         <Cell label="Shape">
-          <Value>{shortShape(diamond.shape)}</Value>
+          <Value row="1">{shortShape(diamond.shape)}</Value>
         </Cell>
         <Cell label="Colour">
-          <Value>{diamond.color}</Value>
+          <Value row="colour" maxVh={COLOUR_MAX_VH}>{diamond.color}</Value>
         </Cell>
         <Cell label="Clarity">
-          <Value>{diamond.clarity}</Value>
+          <Value row="grades" maxVh={GRADE_MAX_VH}>{diamond.clarity}</Value>
         </Cell>
         <Cell label="Inclusions">
           <div className="flex min-h-0 flex-1 flex-col gap-[1vh]">
-            <BrilliantPlot className="mt-[0.6vh] h-full max-h-[16vh] w-auto self-start text-[#16150f]" />
+            <BrilliantPlot className="mt-[0.6vh] h-full max-h-[16vh] w-auto self-start text-[#000000]" />
             {diamond.clarityCharacteristics?.length ? (
               <div className="flex flex-wrap gap-[0.6vh_0.5vw]">
                 {diamond.clarityCharacteristics.map((c) => (
-                  <CharacteristicPill key={c}>{c}</CharacteristicPill>
+                  <CharacteristicPill key={c} name={c} />
                 ))}
               </div>
             ) : null}
           </div>
         </Cell>
         <Cell label="Cut">
-          <Value>{CUT_ABBR[diamond.cut] ?? diamond.cut}</Value>
+          <Value row="grades" maxVh={GRADE_MAX_VH}>{CUT_ABBR[diamond.cut] ?? diamond.cut}</Value>
         </Cell>
       </div>
     </div>
