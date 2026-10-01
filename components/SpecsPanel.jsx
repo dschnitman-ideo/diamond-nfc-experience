@@ -29,8 +29,10 @@ function shortShape(shape) {
 function Cell({ label, children, className = "" }) {
   return (
     <div className={`flex min-h-0 flex-col gap-[0.7vh] ${className}`}>
-      <div className="h-px w-full bg-[#000000]/55" />
-      <p className="text-label font-semibold uppercase tracking-caps text-[#000000]">
+      {/* flex-none: on iPad's squarer viewport the colour letter can
+          outgrow its row, and the shrink would squash this 1px rule to 0. */}
+      <div className="h-px w-full flex-none bg-[#000000]/55" />
+      <p className="flex-none text-label font-semibold uppercase tracking-caps text-[#000000]">
         {label}
       </p>
       {children}
