@@ -442,32 +442,32 @@ export default function DiamondStage({
                         "radial-gradient(closest-side, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.4) 40%, rgba(0,0,0,0.15) 70%, rgba(0,0,0,0) 100%)",
                     }}
                   />
-                  <DiamondMark className="h-16 w-16 text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]" />
+                  <DiamondMark className="h-14 w-14 text-white drop-shadow-[0_1px_6px_rgba(0,0,0,0.85)]" />
 
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: REVEAL_OFFSET + 0.4, duration: 0.7, ease: "easeOut" }}
-                    className="mt-7 text-center text-base font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]"
+                    className="mt-3.5 text-center text-sm font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]"
                   >
                     Confirmed
                   </motion.p>
 
-                  {renderHeadline("mt-3 text-center text-[clamp(24px,7.8cqw,49px)]")}
+                  {renderHeadline("mt-2 text-center text-[clamp(24px,7.2cqw,46px)]")}
 
                   <motion.div
                     {...idReveal}
-                    className="mt-6 flex flex-col items-center gap-1.5 text-center"
+                    className="mt-4 flex flex-col items-center gap-1 text-center"
                   >
-                    <p className="text-base font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
+                    <p className="text-sm font-medium uppercase tracking-[0.06em] text-white/85 drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
                       Unique identification
                     </p>
-                    <p className="truncate text-[clamp(20px,5.6cqw,30px)] tracking-[0.02em] text-white drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
+                    <p className="truncate text-[clamp(19px,5.2cqw,28px)] tracking-[0.02em] text-white drop-shadow-[0_1px_5px_rgba(0,0,0,0.85)]">
                       GIA {inscriptionNumber}
                     </p>
                   </motion.div>
 
-                  {renderDetailsButton("mt-6 w-[480px]")}
+                  {renderDetailsButton("mt-5 w-[440px]")}
                 </motion.div>
               </>
             )}

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import InscriptionPanel from "./InscriptionPanel";
 import StoryPanel from "./StoryPanel";
 import SpecsPanel from "./SpecsPanel";
+import { Icon } from "./icons";
 import { playPanelOpenSound, playPanelCloseSound, vibrate } from "@/lib/feedback";
 
 /**
@@ -56,8 +57,8 @@ const BOARD_WIDTH = `clamp(${BOARD_WIDTH_MIN}px, min(46vw, 100vw - 740px), ${BOA
 // Chalk-on-Ash-Grey — were bumped to Eggshell in SpecsPanel to stay
 // visible against the panel now matching their old color.
 const PANELS = [
-  { id: "story", label: "About", surface: "#f1f2ed" },
-  { id: "specs", label: "4Cs", surface: "#dfdfd7" },
+  { id: "story", label: "About", surface: "#f1f2ed", icon: "story" },
+  { id: "specs", label: "4Cs", surface: "#dfdfd7", icon: "gem" },
 ];
 
 function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) {
@@ -78,11 +79,24 @@ function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) 
         onClick={onToggle}
         aria-expanded={open}
         style={{ width: RAIL_WIDTH }}
-        className="flex h-full flex-none items-center justify-start px-4 text-left"
+        className="flex h-full flex-none items-center justify-start"
       >
-        <span className="whitespace-pre-line text-[11px] font-semibold uppercase leading-[1.2] tracking-[0.08em] text-[#000000]">
-          {panel.label}
-        </span>
+        {/* Centered within the rail's actually-visible width, not the
+            full RAIL_WIDTH — the next card in the stack always pulls
+            left by CARD_OVERLAP and paints over this rail's own
+            rightmost 28px (that's what makes its rounded corner reveal
+            this card's surface instead of the black stage), so content
+            centered in the full width ran into that covered band and
+            looked clipped. */}
+        <div
+          style={{ width: RAIL_WIDTH - CARD_OVERLAP }}
+          className="flex flex-col items-center justify-center gap-2.5 text-center"
+        >
+          <Icon name={panel.icon} className="h-[18px] w-[18px] text-[#000000]" />
+          <span className="whitespace-pre-line text-[11px] font-semibold uppercase leading-[1.2] tracking-[0.08em] text-[#000000]">
+            {panel.label}
+          </span>
+        </div>
       </button>
 
       {/* Fixed-width so the board's own layout never reflows while the

@@ -46,9 +46,17 @@ export default function StoryPanel({ diamond, tracrRecord }) {
     // same 28px and paints over it, so a plain symmetric px- here leaves
     // almost no visible gap and content reads as flush against that rail.
     <div className="relative flex h-full flex-col gap-[2.2vh] pl-[clamp(20px,2.6vw,38px)] pr-[calc(clamp(20px,2.6vw,38px)+28px)] py-[clamp(18px,3vh,34px)] text-[#000000]">
-      <p className="flex-none font-[family-name:var(--font-display)] text-[min(4vh,6.6cqw)] leading-[1.05] tracking-[-0.01em]">
-        This diamond has a story.
-      </p>
+      {/* Matches the 4Cs panel's own header treatment exactly: rule and
+          label share one flex-none wrapper, so the parent's own
+          gap-[2.2vh] doesn't ALSO fall between them on top of the
+          mt-[0.7vh] below — that stacking is what made this rule and
+          title sit further apart than 4Cs's rule and "4Cs" do. */}
+      <div className="flex-none">
+        <Rule />
+        <p className="mt-[0.7vh] text-label font-semibold uppercase tracking-caps">
+          This diamond has a story
+        </p>
+      </div>
 
       {/* Matches the 4Cs panel's own mark placement — bottom corner
           rather than sitting inline with the header. */}

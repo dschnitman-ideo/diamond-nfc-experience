@@ -22,6 +22,7 @@ import {
   Columns,
   Plus,
   MagnifyingGlass,
+  BookOpen,
 } from "@phosphor-icons/react";
 
 const ICONS = {
@@ -43,6 +44,7 @@ const ICONS = {
   compare: Columns,
   plus: Plus,
   search: MagnifyingGlass,
+  story: BookOpen,
 };
 
 export function Icon({ name, className = "", weight = "bold" }) {

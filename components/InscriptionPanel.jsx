@@ -56,7 +56,15 @@ export default function InscriptionPanel({ onClose }) {
       ) : null}
 
       <div style={{ width: SIDE_PANEL_WIDTH }} className="flex h-full flex-none flex-col px-9 py-10">
-        <p className="text-label font-semibold uppercase tracking-caps text-black">
+        {/* Matches About's and 4Cs's own header treatment — a rule,
+            then the small uppercase label — rather than the label
+            sitting alone, which read as the one inconsistent header
+            in an otherwise now-unified three-panel stack. Stops short
+            of full width (unlike those two) to clear the close button,
+            which sits closer to this corner than the padding alone
+            would suggest. */}
+        <div className="h-px w-[calc(100%-32px)] bg-black/55" />
+        <p className="mt-3 text-label font-semibold uppercase tracking-caps text-black">
           About this inscription &amp; symbol
         </p>
         <p className="mt-4 font-[family-name:var(--font-display)] text-2xl leading-snug text-black">
