@@ -42,7 +42,14 @@ export default function InscriptionPanel({ onClose }) {
           type="button"
           onClick={onClose}
           aria-label="Close diamond details"
-          className="absolute right-5 top-5 z-10 flex h-8 w-8 items-center justify-center rounded-full text-black/60 transition-colors hover:bg-black/10 hover:text-black"
+          // Centers this 32px-tall button on the rule below it, which
+          // now sits at the content wrapper's own top padding — the
+          // same clamp(18px,3vh,34px) used for About's and 4Cs's own
+          // top padding, so all three panels' rules land at the same
+          // height. top here has to track that same clamp (minus half
+          // the button's height) rather than a fixed px value, or the
+          // two drift apart as the viewport height changes.
+          className="absolute right-5 top-[calc(clamp(18px,3vh,34px)-16px)] z-10 flex h-8 w-8 items-center justify-center rounded-full text-black/60 transition-colors hover:bg-black/10 hover:text-black"
         >
           <svg viewBox="0 0 16 16" fill="none" className="h-3.5 w-3.5" aria-hidden="true">
             <path
@@ -55,7 +62,10 @@ export default function InscriptionPanel({ onClose }) {
         </button>
       ) : null}
 
-      <div style={{ width: SIDE_PANEL_WIDTH }} className="flex h-full flex-none flex-col px-9 py-10">
+      <div
+        style={{ width: SIDE_PANEL_WIDTH }}
+        className="flex h-full flex-none flex-col px-9 py-[clamp(18px,3vh,34px)]"
+      >
         {/* Matches About's and 4Cs's own header treatment — a rule,
             then the small uppercase label — rather than the label
             sitting alone, which read as the one inconsistent header

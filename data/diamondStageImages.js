@@ -1,8 +1,8 @@
 /**
- * Per-diamond real-photography zoom levels for DiamondStage and
- * CompareView. Each diamond that has its own photo set gets an entry
- * here; diamonds without one fall back to "001"'s set (see
- * `getStageImages`) rather than breaking.
+ * Per-diamond real-photography zoom levels for DiamondStage. Each
+ * diamond that has its own photo set gets an entry here; diamonds
+ * without one fall back to "001"'s set (see `getStageImages`) rather
+ * than breaking.
  */
 export const diamondStageImages = {
   "001": [

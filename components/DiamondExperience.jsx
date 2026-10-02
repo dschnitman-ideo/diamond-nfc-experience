@@ -142,6 +142,7 @@ export default function DiamondExperience({
             key="side-panels"
             diamond={diamond}
             tracrRecord={tracrRecord}
+            giaRecord={giaRecord}
             onClose={() => setDetailsRevealed(false)}
           />
         ) : null}

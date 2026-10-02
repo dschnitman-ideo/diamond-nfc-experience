@@ -122,7 +122,7 @@ function CollapsiblePanel({ panel, open, onToggle, children, overlap = false }) 
   );
 }
 
-export default function SidePanelStack({ diamond, tracrRecord, onClose }) {
+export default function SidePanelStack({ diamond, tracrRecord, giaRecord, onClose }) {
   const [openPanel, setOpenPanel] = useState(null);
 
   function toggle(id) {
@@ -151,7 +151,7 @@ export default function SidePanelStack({ diamond, tracrRecord, onClose }) {
         open={openPanel === "story"}
         onToggle={() => toggle("story")}
       >
-        <StoryPanel diamond={diamond} tracrRecord={tracrRecord} />
+        <StoryPanel diamond={diamond} tracrRecord={tracrRecord} giaRecord={giaRecord} />
       </CollapsiblePanel>
 
       <CollapsiblePanel

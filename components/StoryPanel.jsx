@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import DiamondMark from "./DiamondMark";
+import { Icon } from "./icons";
 import { getThumbnail } from "@/data/diamondStageImages";
 import { getDiamondStory, splitOrigin } from "@/data/diamondStories";
 
@@ -30,7 +31,7 @@ function Rule() {
   return <div className="h-px w-full bg-[#000000]/55" />;
 }
 
-export default function StoryPanel({ diamond, tracrRecord }) {
+export default function StoryPanel({ diamond, tracrRecord, giaRecord }) {
   const { country } = splitOrigin(tracrRecord?.origin);
   const thumbnail = getThumbnail(diamond.id);
   // Same per-stone figures DiamondStory quotes in full, condensed to
@@ -92,6 +93,38 @@ export default function StoryPanel({ diamond, tracrRecord }) {
               {depth}
             </p>
           </div>
+
+          {/* The one link off this board to an outside document — the
+              actual GIA certificate PDF, not just its report number as
+              plain text. */}
+          {giaRecord?.reportUrl ? (
+            <div className="flex flex-col gap-[0.8vh]">
+              <Rule />
+              <Label>GIA report</Label>
+              <a
+                href={giaRecord.reportUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-[family-name:var(--font-display)] text-[min(4.4vh,6.6cqw)] leading-[1.08] underline decoration-1 underline-offset-4"
+              >
+                View{" "}
+                {/* "certificate" and the icon share a whitespace-nowrap
+                    span so they can never break apart from each other —
+                    a bare trailing icon stranded onto its own line once
+                    "View certificate" wrapped to two lines, since
+                    nothing otherwise kept it glued to the last word
+                    across that wrap. The break can only land between
+                    "View" and this span now, never inside it. */}
+                <span className="whitespace-nowrap">
+                  certificate{" "}
+                  <Icon
+                    name="arrowUpRight"
+                    className="inline h-[0.7em] w-[0.7em] -translate-y-[0.1em] align-middle no-underline"
+                  />
+                </span>
+              </a>
+            </div>
+          ) : null}
         </div>
 
         <div className="flex flex-col gap-[0.8vh]">
